@@ -1,6 +1,6 @@
 <template>
-  <div id="app">
-    <router-view />
+  <div>
+    ShopInfo
   </div>
 </template>
 
@@ -8,7 +8,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class App extends Vue {
-  created () { this.$store.dispatch('getGlobalImgs') }
+export default class ShopInfo extends Vue {
+
 }
 </script>
+
+<style scoped>
+
+</style>
