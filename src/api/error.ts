@@ -4,9 +4,7 @@ export default (status: number, msg: string): void => {
     case 401:
       Message.error('权限不足')
       break
-  
     default:
-      Message.error(msg)
       break
   }
 }

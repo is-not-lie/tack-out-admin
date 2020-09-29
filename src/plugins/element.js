@@ -17,7 +17,7 @@ const compoent = [
   Table,
   TableColumn,
   Popover,
-  Tag,
+  Tag
 ]
 
 Vue.prototype.$message = Message

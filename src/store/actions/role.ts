@@ -1,5 +1,4 @@
 import { Message } from 'element-ui'
-import dayjs from 'dayjs'
 import { http } from '@/api'
 import { AddRoleData, EditRoleData } from '@/tsConfig/interface/roleInter'
 
