@@ -19,5 +19,6 @@ require('./comment')(router)
 require('./category')(router)
 require('./role')(router)
 require('./upload')(router)
+require('./position')(router)
 
 module.exports = router
