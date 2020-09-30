@@ -6,7 +6,7 @@ module.exports = router => {
     try {
       const roles = await roleModel.find({})
       if (roles.length) res.send({ status: 200, data: roles })
-      else res.send({ status: 404 })
+      else res.send({ status: 404, msg: '暂无角色列表' })
     } catch (err) {
       console.log(`查询角色信息异常,错误信息${err}`)
       res.send({ status: 0, msg: '查询角色列表失败' })

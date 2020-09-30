@@ -18,5 +18,6 @@ require('./goods')(router)
 require('./comment')(router)
 require('./category')(router)
 require('./role')(router)
+require('./upload')(router)
 
 module.exports = router

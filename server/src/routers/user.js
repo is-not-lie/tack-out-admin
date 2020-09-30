@@ -10,8 +10,8 @@ module.exports = router => {
     const { phone, password } = req.body
     try {
       const user = password
-        ? await userModel.findOne({ phone, password: md5(password) }, { _id: 0, password: 0, _v: 0 })
-        : await userModel.findOne({ phone }, { _id: 0, password: 0, _v: 0 })
+        ? await userModel.findOne({ phone, password: md5(password) }, { password: 0, _v: 0 })
+        : await userModel.findOne({ phone }, { password: 0, _v: 0 })
       if (!user) return res.send({ status: 0, msg: '该用户不存在或密码不正确' })
       user._doc.token = jwt.sign({ id: user._id }, TOKEN_KEY, { expiresIn: TOKEN_TIME })
       res.send({ status: 200, data: user })

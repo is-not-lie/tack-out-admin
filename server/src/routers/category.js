@@ -26,7 +26,7 @@ module.exports = router => {
     const { _id } = req.body
     try {
       const cate = await cateModel.findOne({ _id })
-      if (cate) res.send({ status: 404, msg: '该分类不存在' })
+      if (!cate) res.send({ status: 404, msg: '该分类不存在' })
       else {
         const result = await cateModel.findOneAndUpdate({ _id }, { ...req.body })
         result && res.send({ status: 200 })
@@ -40,7 +40,7 @@ module.exports = router => {
     const { _id } = req.body
     try {
       const cate = await cateModel.findOne({ _id })
-      if (cate) res.send({ status: 404, msg: '该分类不存在' })
+      if (!cate) res.send({ status: 404, msg: '该分类不存在' })
       else if (cate._doc.subList.length) res.send({ status: 0, msg: '请先删除该分类下的子分类' })
       else {
         await cateModel.deleteOne({ _id })
@@ -69,7 +69,7 @@ module.exports = router => {
     const { _id } = req.query
     try {
       const subCate = await cateModel.findOne({ _id }, { _id: 0, icon: 0, cateName: 0 })
-      if (subCate.length) res.send({ status: 0, msg: '该分类尚无子分类' })
+      if (!subCate.length) res.send({ status: 0, msg: '该分类尚无子分类' })
       else res.send({ status: 200, data: subCate })
     } catch (err) {
       console.error(`子分类查询异常,错误信息${err}`)
@@ -91,9 +91,31 @@ module.exports = router => {
     }
   })
   router.post('/api/cate/sub/del', async (req, res) => {
-    const {} = req.body
+    const { _id, subId } = req.body
+    try {
+      const cate = await cateModel.findOne({ _id })
+      const subIndex = cate._doc.subList.findIndex(sub => sub.subId === subId)
+      if (subIndex !== -1) cates._doc.subList.splice(subIndex, 1)
+      await cateModel.findOneAndUpdate({ _id }, { ...cate })
+      res.send({ status: 200 })
+    } catch (err) {
+      console.error(`删除子分类异常,错误信息${err}`)
+      res.send({ status: 0, msg: '删除分类失败' })
+    }
   })
   router.post('/api/cate/sub/edit', async (req, res) => {
-    const {} = req.body
+    const { _id, subId, subName } = req.body
+    try {
+      const cate = await cateModel.findOne({ _id })
+      const subIndex = cate._doc.subList.findIndex(sub => sub.subId === subId)
+      if (subIndex === -1) res.send({ status: 404, msg: '没有找到该分类' })
+      else {
+        cate._doc.subList[subIndex].subName = subName
+        res.send({ status: 200, data: await cateModel.findOneAndUpdate({ _id }, { ...cate }) })
+      }
+    } catch (err) {
+      console.error(`编辑子分类异常,错误信息${err}`)
+      res.send({ status: 0, msg: '编辑失败' })
+    }
   })
 }

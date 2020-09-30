@@ -18,7 +18,7 @@ const shopSchema = new mongoose.Schema({
   activity: { type: Array, default: [] }, // 商家活动列表
   shopDesc: { type: String, default: defaultShopDesc }, // 商家描述
   announcement: String, // 商家公告
-  contact_way: { type: Array || String, required: true },
+  contact_way: { type: Array || String, required: true }, // 商家的联系方式
   isBrand: { type: Boolean, default: false }, // 是否为品牌用户
   score: { type: Number, default: 0 } // 商家评分星级
 })
