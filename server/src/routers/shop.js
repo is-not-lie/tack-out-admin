@@ -1,4 +1,6 @@
 const shopModel = require('../models/shop')
+const goodsModel = require('../models/goods')
+const commentModel = require('../models/comment')
 const { shopVerify } = require('../utils/verify')
 module.exports = router => {
   router.get('/api/shop', async (req, res) => {
@@ -29,7 +31,14 @@ module.exports = router => {
     try {
       const shop = await shopModel.findOne({ shopName })
       if (shop) res.send({ status: 0, msg: '该商家名称已存在' })
-      else res.send({ status: 200, data: await shopModel.create({ ...req.body }) })
+      else {
+        const result = await shopModel.create({ ...req.body })
+        const { _id } = result._doc
+        // 商家注册成功, 舒适化商家商品表和用户评论表
+        await goodsModel.create({ shopId: _id })
+        await commentModel.create({ shopId: _id })
+        res.send({ status: 200, data: result })
+      }
     } catch (err) {
       console.error(`新增商家异常,错误信息${err}`)
       res.send({ status: 0, msg: '商家注册失败' })
