@@ -1,10 +1,9 @@
 const { v4: uuidv4 } = require('uuid')
 const shopModel = require('../models/shop')
 const orderModel = require('../models/order')
-const { createOrder } = require('../utils/create')
 const { orderVerify } = require('../utils/verify')
 
-const createOrder = ({ shopId, goods, price }) => {
+const createOrder = async ({ shopId, goods, price }) => {
   const shop = await shopModel.findOne({ _id: shopId })
   const { shopImg, shopName } = shop._doc
   return {

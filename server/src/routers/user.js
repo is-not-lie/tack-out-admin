@@ -41,7 +41,7 @@ module.exports = router => {
       res.send({ status: 0, msg: '当前网络繁忙,请稍后重新尝试' })
     }
   })
-  router.post('/api/user/edit', (req, res) => {
+  router.post('/api/user/edit', async (req, res) => {
     let { phone, password, _id } = req.body
     if (!phone) return res.send({ status: 0, msg: '手机号是必须的' })
     if (password) { password = md5(password) }
