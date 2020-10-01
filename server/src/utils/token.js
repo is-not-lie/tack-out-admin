@@ -4,7 +4,7 @@ const { TOKEN_KEY, TOKEN_CHECK } = require('../config')
 module.exports = (req, res, next) => {
   const { url } = req
   // 匹配白名单
-  if (TOKEN_CHECK.findIndex((path) => new RegExp(path).test(url)) !== -1) return next()
+  if (TOKEN_CHECK.findIndex((path) => new RegExp(path).test(url)) === -1) return next()
 
   const { authorization } = req.headers
   if (!authorization) return res.status(401).json({ status: 401 })

@@ -9,7 +9,8 @@ const SERVER = {
   host: 'localhost'
 }
 // token校验白名单
-const TOKEN_CHECK = ['/images', '/login', '/', '/api/captcha', '/api/global_imgs']
+// const TOKEN_CHECK = ['/images', '/login', '/', '/api/captcha', '/api/global_imgs']
+const TOKEN_CHECK = []
 // token签名密钥
 const TOKEN_KEY = 'take_out_shop'
 // token过期事件
