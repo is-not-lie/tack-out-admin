@@ -3,6 +3,11 @@ const goodsModel = require('../models/goods')
 const commentModel = require('../models/comment')
 const { goodsVerify } = require('../utils/verify')
 
+const componentCurrentPice = (pice, discount) => {
+  const currentPice = pice * (discount / 10)
+  return Math.ceil(currentPice * 100) / 100
+}
+
 const createLabel = (goods) => ({
   labelId: goods.goodsId,
   labelName: goods.name
@@ -11,13 +16,13 @@ const createLabel = (goods) => ({
 const createGoods = (goods) => ({
   cateId: goods.cateId, // 分类id (必须)
   goodsId: uuidv4(), // 商品id
-  ImgUrlBig: goods.ImgUrlBig || '', // 商品大图片
-  ImgUrlSmall: goods.imgUrlSmall ? goods.imgUrlSmall : '', // 商品小图片
+  imgUrlBig: goods.imgUrlBig || '', // 商品大图片
+  imgUrlSmall: goods.imgUrlSmall || '', // 商品小图片
   name: goods.name, // 商品名称 (必须)
   desc: goods.desc || '', // 商品描述
-  originalPice: goods.desc, // 商品原价格 (必须)
+  originalPice: goods.originalPice, // 商品原价格 (必须)
   discount: goods.discount || 0, // 商品折扣
-  currentPice: goods.discount ? goods.originalPice * (goods.discount / 10) : goods.originalPice, // 商品折扣价
+  currentPice: goods.discount ? componentCurrentPice(goods.originalPice, goods.discount) : goods.originalPice, // 商品折扣价
   deal: goods.deal, // 价格对应的份量, 比如 $10 / 1人份 (必须)
   monthlySales: 0, // 月售量
   like: 0, // 点赞量
@@ -28,7 +33,7 @@ const createGoods = (goods) => ({
 
 const createCate = (cate) => ({
   cateId: uuidv4(),
-  cateName: cate.name, // 分类名称 (必须)
+  cateName: cate.cateName, // 分类名称 (必须)
   cateIcon: cate.icon || ''
 })
 
@@ -38,9 +43,9 @@ module.exports = router => {
     const { shopId, goodsId } = req.query
     try {
       const shopGoods = await goodsModel.findOne({ shopId })
-      if (!shop) return res.send({ status: 404, msg: '您当前还不是商家哦' })
+      if (!shopGoods) return res.send({ status: 404, msg: '您当前还不是商家哦' })
 
-      const { goodsList } = shopGoods
+      const { goodsList } = shopGoods._doc
       const goods = goodsList.find(goods => goods.goodsId === goodsId)
       if (!goods) res.send({ status: 404, msg: '您还未添加过该商品' })
       else res.send({ status: 200, data: goods })
@@ -57,7 +62,7 @@ module.exports = router => {
 
       const { goodsList, cates } = shopGoods._doc
       if (!goodsList.length) res.send({ status: 404, msg: '您还未添加过商品呢' })
-      else res.send({ status: 200, msg: { goodsList, cates } })
+      else res.send({ status: 200, data: { goodsList, cates } })
     } catch (err) {
       console.error(`查询商品列表异常,错误信息${err}`)
       res.send({ status: 0, msg: '获取商品列表失败' })
@@ -74,16 +79,16 @@ module.exports = router => {
       if (!shopGoods) return res.send({ status: 404, msg: '您当前还不是商家哦' })
 
       const { goodsList } = shopGoods._doc
-      if (goodsList.findIndex(item => item.name === goods.name) !== -1) res.send({ status: 0, msg: '该商品名称已存在' })
+      if (goodsList.find(item => item.name === goods.name)) res.send({ status: 0, msg: '该商品名称已存在' })
       else {
         goods = createGoods(goods)
         goodsList.unshift(goods)
-        await goodsModel.findOneAndUpdate({ shopId }, { ...shopGoods })
+        await goodsModel.findOneAndUpdate({ shopId }, shopGoods, { useFindAndModify: false })
         // 新增商品的同时将商品名称添加到评论的标签列表
-        const shopComment = commentModel.findOne({ shopId })
+        const shopComment = await commentModel.findOne({ shopId })
         const { labels } = shopComment._doc
         labels.push(createLabel(goods))
-        await commentModel.findOneAndUpdate({ shopId }, { ...shopComment })
+        await commentModel.findOneAndUpdate({ shopId }, shopComment, { useFindAndModify: false })
 
         res.send({ status: 200, data: goodsList })
       }
@@ -103,18 +108,21 @@ module.exports = router => {
       if (!shopGoods) res.send({ status: 404, msg: '您当前还不是商家哦' })
       else {
         const { goodsList } = shopGoods._doc
-        const index = goodsList.findIndex(food => food.goodsId === goods.goodsId)
-        if (index === -1) res.send({ status: 404, msg: '您还未添加过该商品哦' })
+        const food = goodsList.find(food => food.goodsId === goods.goodsId)
+        if (!food) res.send({ status: 404, msg: '您还未添加过该商品哦' })
         else {
-          goodsList.splice(index, 1, goods)
-          await goodsModel.findOneAndUpdate({ shopId }, { ...shopGoods })
+          Object.keys(goods).forEach(key => {
+            if (key === 'goodsId' || key === 'cateId') return
+            food[key] = goods[key]
+          })
+          await goodsModel.findOneAndUpdate({ shopId }, shopGoods, { useFindAndModify: false })
           // 修改商品信息后同时更新评论的标签列表
-          const shopComment = commentModel.findOne({ shopId })
+          const shopComment = await commentModel.findOne({ shopId })
           const { labels } = shopComment._doc
           const label = labels.find(item => item.labelId === goods.goodsId)
           if (label) { label.labelName = goods.name }
           else labels.push(createLabel(goods))
-          await commentModel.findOneAndUpdate({ shopId }, { ...shopComment })
+          await commentModel.findOneAndUpdate({ shopId }, shopComment, { useFindAndModify: false })
 
           res.send({ status: 200, data: goodsList })
         }
@@ -135,8 +143,8 @@ module.exports = router => {
         if (index === -1) res.send({ status: 404, msg: '您还未添加过该商品呢' })
         else {
           goodsList.splice(index, 1)
-          await goodsModel.findOneAndUpdate({ shopId }, { ...shopGoods })
-          res.send({ status: 200 })
+          await goodsModel.findOneAndUpdate({ shopId }, shopGoods, { useFindAndModify: false })
+          res.send({ status: 200, data: goodsList })
         }
       }
     } catch (err) {
@@ -148,8 +156,8 @@ module.exports = router => {
   router.get('/api/shop/cate/list', async (req, res) => {
     const { shopId } = req.query
     try {
-      const shopGoods = goodsModel.findOne({ shopId })
-      if (!shopGoods) res.send({ status: 404, msg: '您当前还不是商家哦' })
+      const shopGoods = await goodsModel.findOne({ shopId })
+      if (!shopGoods) return res.send({ status: 404, msg: '您当前还不是商家哦' })
 
       const { cates } = shopGoods._doc
       if (!cates.length) res.send({ status: 404, msg: '您还未定义商品分类呢' })
@@ -164,15 +172,15 @@ module.exports = router => {
     if (!cateName) return res.send({ status: 0, msg: '请填写分类名称' })
 
     try {
-      const shopGoods = goodsModel.findOne({ shopId })
+      const shopGoods = await goodsModel.findOne({ shopId })
       if (!shopGoods) res.send({ status: 404, msg: '您当前还不是商家哦' })
       else {
         const { cates } = shopGoods._doc
-        if (cates.findIndex(cate => cate.cateName === cateName) === -1) res.send({ status: 0, msg: '该分类名称已存在' })
+        if (cates.find(cate => cate.cateName === cateName)) res.send({ status: 0, msg: '该分类名称已存在' })
         else {
           const cate = createCate({ cateName, icon })
           cates.unshift(cate)
-          await goodsModel.findOneAndUpdate({ shopId }, { ...shopGoods })
+          await goodsModel.findOneAndUpdate({ shopId }, shopGoods, { useFindAndModify: false })
           res.send({ status: 200, data: cates })
         }
       }
@@ -182,19 +190,20 @@ module.exports = router => {
     }
   })
   router.post('/api/shop/cate/edit', async (req, res) => {
-    const { shopId, cate } = req.body
-    if (!cate.cateName) return res.send({ status: 0, msg: '请填写分类名称' })
+    const { shopId, cateName, icon, cateId } = req.body
+    if (!cateName) return res.send({ status: 0, msg: '请填写分类名称' })
 
     try {
-      const shopGoods = goodsModel.findOne({ shopId })
+      const shopGoods = await goodsModel.findOne({ shopId })
       if (!shopGoods) res.send({ status: 404, msg: '您当前还不是商家哦' })
       else {
         const { cates } = shopGoods._doc
-        const index = cates.findIndex(item => item.cateId === cate.cateId)
-        if (index === -1) res.send({ status: 0, msg: '您还未添加该分类呢' })
+        const cate = cates.find(item => item.cateId === cateId)
+        if (!cate) res.send({ status: 0, msg: '您还未添加该分类呢' })
         else {
-          cates.splice(index, 1, cate)
-          await goodsModel.findOneAndUpdate({ shopId }, { ...shopGoods })
+          cate.cateName = cateName
+          cate.cateIcon = icon || cate.cateIcon
+          await goodsModel.findOneAndUpdate({ shopId }, shopGoods, { useFindAndModify: false })
           res.send({ status: 200, data: cates })
         }
       }
@@ -206,13 +215,13 @@ module.exports = router => {
   router.post('/api/shop/cate/del', async (req, res) => {
     const { shopId, cateId } = req.body
     try {
-      const shopGoods = goodsModel.findOne({ shopId })
+      const shopGoods = await goodsModel.findOne({ shopId })
       if (!shopGoods) res.send({ status: 404, msg: '您当前还不是商家哦' })
       else {
         const { cates } = shopGoods._doc
         const index = cates.findIndex(item => item.cateId === cateId)
         if (index !== -1) cates.splice(index, 1)
-        await goodsModel.findOneAndUpdate({ shopId }, { ...shopGoods })
+        await goodsModel.findOneAndUpdate({ shopId }, shopGoods, { useFindAndModify: false })
         res.send({ status: 200, data: cates })
       }
     } catch (err) {

@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require('uuid')
+const dayjs = require('dayjs')
 const shopModel = require('../models/shop')
 const orderModel = require('../models/order')
 const { orderVerify } = require('../utils/verify')
@@ -7,7 +8,7 @@ const createOrder = async ({ shopId, goods, price }) => {
   const shop = await shopModel.findOne({ _id: shopId })
   const { shopImg, shopName } = shop._doc
   return {
-    orderId: uuidv4, // 订单 id
+    orderId: uuidv4(), // 订单 id
     shopId: shopId, // 商家 id (必须)
     shopImg, // 商家图片
     shopName, // 商家名称
@@ -39,13 +40,13 @@ module.exports = router => {
     if (result.status === false) return res.send({ status: 0, msg: result.msg })
 
     try {
-      const newOrder = createOrder(req.body)
       const userOrder = await orderModel.findOne({ userId })
       if (!userOrder) res.send({ status: 404, msg: '您好像还未注册' })
       else {
+        const newOrder = await createOrder(order)
         const { orderList } = userOrder._doc
         orderList.unshift(newOrder)
-        await orderModel.findOneAndUpdate({ userId }, { ...userOrder })
+        await orderModel.findOneAndUpdate({ userId }, userOrder, { useFindAndModify: false})
         res.send({ status: 200, data: orderList })
       }
     } catch (err) {
@@ -62,7 +63,7 @@ module.exports = router => {
         const { orderList } = userOrder._doc
         const index = orderList.findIndex(order => order.orderId === orderId)
         if (index !== -1) orderList.splice(index, 1)
-        await orderModel.findOneAndUpdate({ userId }, { ...userOrder })
+        await orderModel.findOneAndUpdate({ userId }, userOrder, { useFindAndModify: false })
         res.send({ status: 200, data: orderList })
       }
     } catch (err) {
@@ -71,20 +72,18 @@ module.exports = router => {
     }
   })
   router.post('/api/user/order/edit', async (req, res) => {
-    const result = orderVerify(req.body)
-    const { userId, order } = req.body
-    if (result.status === false) return res.send({ status: 0, msg: result.msg })
+    const { userId, orderId, status } = req.body
 
     try {
       const userOrder = await orderModel.findOne({ userId })
       if (!userOrder) res.send({ status: 404, msg: '您好像还未注册' })
       else {
         const { orderList } = userOrder._doc
-        const index = orderList.findIndex(item => item.orderId === order.orderId)
-        if (index === -1) res.send({ status: 404, msg: '没有找到该订单' })
+        const order = orderList.find(item => item.orderId === orderId)
+        if (!order) res.send({ status: 404, msg: '没有找到该订单' })
         else {
-          orderList.splice(index, 1, order)
-          await orderModel.findOneAndUpdate({ userId }, { ...userOrder })
+          order.status = status
+          await orderModel.findOneAndUpdate({ userId }, userOrder, { useFindAndModify: false })
           res.send({ status: 200, data: orderList })
         }
       }

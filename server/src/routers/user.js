@@ -4,25 +4,34 @@ const svgCaptcha = require('svg-captcha')
 const sendCode = require('../utils/sendSms.js')
 const userModel = require('../models/user')
 const orderModel = require('../models/order')
-const { TOKEN_KEY, TOKEN_TIME, svgConfig } = require('../config')
+const { TOKEN_KEY, TOKEN_TIME, svgConfig, SERVER } = require('../config')
+const avatar_url = `http://${SERVER.host}:${SERVER.port}/images/default.png`
+
+const createUser = (user) => {
+  return {
+    phone: user.phone,
+    userName: user.userName || user.phone,
+    password: md5(user.password) || '',
+    shipping_address: user.shipping_address || [],
+    avatar_url: user.avatar_url || avatar_url
+  }
+}
 
 module.exports = router => {
   router.post('/api/user/singin', async (req, res) => {
-    let { phone, userName, password } = req.body
+    const { phone } = req.body
     if (!phone) return res.send({ status: 0, msg: '手机号是必须的' })
-    userName = userName || phone
-    if (password) {
-      password = md5(password)
-    }
     try {
       const user = await userModel.findOne({ phone })
       if (user) res.send({ status: 0, msg: '该手机号码已被注册' })
       else {
-        const newUser = await userModel.create({ password, userName, ...req.body })
+        const newUser = createUser(req.body)
+        const result = await userModel.create(newUser)
         // 用户注册成功, 初始化用户订单表
-        const { _id } = newUser._doc
+        const { _id } = result._doc
         await orderModel.create({ userId: _id })
-        res.send({ status: 200, data: newUser })
+        result._doc.token = jwt.sign({ id: _id }, TOKEN_KEY, { expiresIn: TOKEN_TIME })
+        res.send({ status: 200, data: result })
       }
     } catch (err) {
       console.error(`用户注册异常,错误信息${err}`)
@@ -44,14 +53,15 @@ module.exports = router => {
     }
   })
   router.post('/api/user/edit', async (req, res) => {
-    let { phone, password, _id } = req.body
+    const { phone, _id, password } = req.body
     if (!phone) return res.send({ status: 0, msg: '手机号是必须的' })
-    if (password) { password = md5(password) }
+    if (password) req.body.password = md5(password)
     try {
       const user = await userModel.findOne({ $and: [{ phone }, { _id: { $ne: _id } }] })
       if (user) res.send({ status: 0, msg: '该手机号已被注册' })
       else {
-        res.send({ status: 200, data: await userModel.findOneAndUpdate({ _id }, { password, phone, ...req.body }, { useFindAndModify: false }) })
+        await userModel.findOneAndUpdate({ _id }, { $set: { ...req.body } }, { useFindAndModify: false })
+        res.send({ status: 200 })
       }
     } catch (err) {
       console.error(`编辑用户信息异常,错误信息${err}`)

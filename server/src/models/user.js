@@ -1,17 +1,14 @@
 // 用户模块
 const md5 = require('md5')
 const mongoose = require('mongoose')
-const { SERVER } = require('../config')
 
-const avatar_url = `http://${SERVER.host}:${SERVER.port}/images/default.png`
 const userSchema = new mongoose.Schema({
   userName: String,
   password: String,
   phone: { type: String, required: true, unique: true },
-  avatar_url: { type: String, default: avatar_url },
+  avatar_url: String,
   authority: { type: Number, default: 0 }, // 用户权限, 0为普通用户 1为商家 2为管理员 3为admin
-  shipping_address: String,
-  orderList: { type: Array, default: [] }
+  shipping_address: String
 })
 
 const userModel = mongoose.model('users', userSchema)
