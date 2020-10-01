@@ -34,17 +34,17 @@ module.exports = router => {
     }
   })
   router.post('/api/user/order/add', async (req, res) => {
-    const { userId, orderInfo } = req.body
-    const result = orderVerify(orderInfo)
+    const { userId, order } = req.body
+    const result = orderVerify(order)
     if (result.status === false) return res.send({ status: 0, msg: result.msg })
 
     try {
-      const order = createOrder(req.body)
+      const newOrder = createOrder(req.body)
       const userOrder = await orderModel.findOne({ userId })
       if (!userOrder) res.send({ status: 404, msg: '您好像还未注册' })
       else {
         const { orderList } = userOrder._doc
-        orderList.unshift(order)
+        orderList.unshift(newOrder)
         await orderModel.findOneAndUpdate({ userId }, { ...userOrder })
         res.send({ status: 200, data: orderList })
       }

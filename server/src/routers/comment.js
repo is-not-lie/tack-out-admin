@@ -1,23 +1,29 @@
 const dayjs = require('dayjs')
 const { v4: uuidv4 } = require('uuid')
 const commentModel = require('../models/comment')
+const userModel = require('../models/user')
 const { commentVerify } = require('../utils/verify')
 const { SERVER } = require('../config')
 
 const avatar_url = `http://${SERVER.host}:${SERVER.port}/images/default.png`
 
-const createComment = comment => ({
-  commentId: uuidv4(),
-  userName: comment.userName, // 评论的用户名 (必须)
-  avatar_url: comment.avatar_url || avatar_url, // 用户头像
-  content: comment.content, // 评论内容 (必须)
-  create_time: dayjs().format('YYYY-MM-DD hh:mm:ss'), // 评论创建时间
-  arrive_time: comment.arrive, // 送达时间 (必须)....虽然是必须的,但是咱也没人送啊!!!
-  shop_reply: '', // 商家回复内容
-  goods_img: comment.goods_img || [], // 评论的商品图片
-  typeId: comment.typeId, // 评论类型, 好评,差评这种 (必须)
-  labels: comment.labels || {} // 评论标签, 包含icon与点赞商品列表
-})
+const createComment = async comment => {
+  const user = await userModel.findOne({ _id: comment.userId })
+  const { userName, avatar_url } = user._doc
+  return {
+    commentId: uuidv4(),
+    userName, // 评论的用户名 (必须)
+    avatar_url, // 用户头像
+    content: comment.content, // 评论内容 (必须)
+    create_time: dayjs().format('YYYY-MM-DD hh:mm:ss'), // 评论创建时间
+    arrive_time: comment.arrive, // 送达时间 (必须)....虽然是必须的,但是咱也没人送啊!!!
+    shop_reply: '', // 商家回复内容
+    goods_img: comment.goods_img || [], // 评论的商品图片
+    typeId: comment.typeId, // 评论类型, 好评,差评这种 (必须)
+    labels: comment.labels || [], // 评论标签, 包含icon与点赞商品列表
+    status: 0 // 评论状态, 0: 未回复, 1: 已回复
+  }
+}
 
 const createType = name => ({
   typeName: name, // 评论类型名称
@@ -76,17 +82,18 @@ module.exports = router => {
     }
   })
   router.post('/api/shop/comment/type/edit', async (req, res) => {
-    const { shopId, type } = req.body
+    const { shopId, typeName, typeId, count } = req.body
     try {
       const shop = await commentModel.findOne({ shopId })
       if (!shop) return res.send({ status: 404, msg: '没有找到该商家' })
-      if (!type.typeName) return res.send({ status: 0, msg: '请填写类型名称' })
+      if (!typeName) return res.send({ status: 0, msg: '请填写类型名称' })
 
       const { types } = shop._doc
-      const result = types.find(item => item.typeId === type.typeId)
-      if (!result) res.send({ status: 404, msg: '没有找到该评论类型' })
+      const type = types.find(item => item.typeId === typeId)
+      if (!type) res.send({ status: 404, msg: '没有找到该评论类型' })
       else {
-        result.typeName = type.typeName
+        type.typeName = typeName
+        type.count = count
         await commentModel.findOneAndUpdate({ shopId }, { ...shop })
         res.send({ status: 200, data: types })
       }
@@ -162,13 +169,14 @@ module.exports = router => {
     }
   })
   router.post('/api/shop/comment/edit', async (req, res) => {
-    const { shopId, comment } = req.body
-    if (!comment.shop_reply) return res.send({ status: 0, msg: '请填写回复内容' })
+    const { shopId, commentId, shop_reply } = req.body
+    if (!shop_reply) return res.send({ status: 0, msg: '请填写回复内容' })
     try {
       const shop = await commentModel.findOne({ shopId })
       const { commentList } = shop._doc
-      const index = commentList.findIndex(item => item.commentId === comment.commentId)
-      commentList.splice(index, 1, comment)
+      const comment = commentList.find(item => item.commentId === commentId)
+      comment.shop_reply = shop_reply
+      comment.status = 1
       await commentModel.findOneAndUpdate({ shopId }, { ...shop })
       res.send({ status: 200, data: commentList })
     } catch (err) {

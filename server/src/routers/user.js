@@ -8,15 +8,17 @@ const { TOKEN_KEY, TOKEN_TIME, svgConfig } = require('../config')
 
 module.exports = router => {
   router.post('/api/user/singin', async (req, res) => {
-    let { phone, userName } = req.body
+    let { phone, userName, password } = req.body
     if (!phone) return res.send({ status: 0, msg: '手机号是必须的' })
     userName = userName || phone
-
+    if (password) {
+      password = md5(password)
+    }
     try {
       const user = await userModel.findOne({ phone })
       if (user) res.send({ status: 0, msg: '该手机号码已被注册' })
       else {
-        const newUser = await userModel.create({ ...req.body })
+        const newUser = await userModel.create({ password, userName, ...req.body })
         // 用户注册成功, 初始化用户订单表
         const { _id } = newUser._doc
         await orderModel.create({ userId: _id })
@@ -49,7 +51,7 @@ module.exports = router => {
       const user = await userModel.findOne({ $and: [{ phone }, { _id: { $ne: _id } }] })
       if (user) res.send({ status: 0, msg: '该手机号已被注册' })
       else {
-        res.send({ status: 200, data: await userModel.findOneAndUpdate({ _id }, { password, phone, ...req.body }) })
+        res.send({ status: 200, data: await userModel.findOneAndUpdate({ _id }, { password, phone, ...req.body }, { useFindAndModify: false }) })
       }
     } catch (err) {
       console.error(`编辑用户信息异常,错误信息${err}`)

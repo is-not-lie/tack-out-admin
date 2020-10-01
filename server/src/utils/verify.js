@@ -1,10 +1,21 @@
 const shopVerify = (body) => {
-  const { shopName, shopLocation, openingHours, minFee, contact_way } = body
+  const {
+    shopName,
+    shopLocation,
+    shopAddress,
+    openingHours,
+    serTime,
+    minFee,
+    shopCate,
+    contact_way } = body
   if (!shopName) return { status: false, msg: '请填写商家名称' }
   if (!shopLocation) return { status: false, msg: '请填写商家位置' }
   if (!openingHours) return { status: false, msg: '请填写营业时间' }
   if (!minFee) return { status: false, msg: '请设置起送价' }
-  if (contact_way) return { status: false, msg: '请填写商家联系方式' }
+  if (!contact_way) return { status: false, msg: '请填写商家联系方式' }
+  if (!shopAddress) return { status: false, msg: '请填写商家地址' }
+  if (!serTime) return { status: false, msg: '请填写商家配送时间段' }
+  if (!shopCate) return { status: false, msg: '请填写商家所属分类' }
   return true
 }
 
@@ -18,8 +29,8 @@ const goodsVerify = (goods) => {
 }
 
 const commentVerify = comment => {
-  const { userName, content, typeId } = comment
-  if (!userName) return { status: false, msg: '用户名不能为空' }
+  const { userId, content, typeId } = comment
+  if (!userId) return { status: false, msg: '用户id不能为空' }
   if (!content) return { status: false, msg: '评论内容不能为空' }
   if (!typeId) return { status: false, msg: '评论类型不能为空' }
   return true

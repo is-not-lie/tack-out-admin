@@ -12,7 +12,7 @@ const createGoods = (goods) => ({
   cateId: goods.cateId, // 分类id (必须)
   goodsId: uuidv4(), // 商品id
   ImgUrlBig: goods.ImgUrlBig || '', // 商品大图片
-  ImgUrlBig: goods.imgUrlSmall ? goods.imgUrlSmall : '', // 商品小图片
+  ImgUrlSmall: goods.imgUrlSmall ? goods.imgUrlSmall : '', // 商品小图片
   name: goods.name, // 商品名称 (必须)
   desc: goods.desc || '', // 商品描述
   originalPice: goods.desc, // 商品原价格 (必须)
