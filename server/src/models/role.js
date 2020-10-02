@@ -1,12 +1,13 @@
 const mongoose = require('mongoose')
-const dayjs = require('dayjs')
 
 const roleSchema = new mongoose.Schema({
+  roleId: { type: String, required: true, unique: true },
   roleName: { type: String, required: true, unique: true },
   creator: { type: String, required: true },
-  creationTime: { type: String || Number, default: dayjs().format('YYYY-MM-DD') },
+  creationTime: String || Number,
   editor: String,
-  editTime: String || Number
+  editTime: String || Number,
+  authority: Number
 })
 
 module.exports = mongoose.model('roles', roleSchema)

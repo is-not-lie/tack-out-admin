@@ -5,7 +5,7 @@ const userModel = require('../models/user')
 const { commentVerify } = require('../utils/verify')
 const { SERVER } = require('../config')
 
-const avatar_url = `http://${SERVER.host}:${SERVER.port}/images/default.png`
+const defalutAvatar = `http://${SERVER.host}:${SERVER.port}/images/default.png`
 
 const createComment = async comment => {
   const user = await userModel.findOne({ _id: comment.userId })
@@ -13,7 +13,7 @@ const createComment = async comment => {
   return {
     commentId: uuidv4(),
     userName, // 评论的用户名 (必须)
-    avatar_url, // 用户头像
+    avatar_url: avatar_url || defalutAvatar, // 用户头像
     content: comment.content, // 评论内容 (必须)
     create_time: dayjs().format('YYYY-MM-DD hh:mm:ss'), // 评论创建时间
     arrive_time: comment.arrive, // 送达时间 (必须)....虽然是必须的,但是咱也没人送啊!!!
@@ -52,9 +52,9 @@ module.exports = router => {
       const shop = await commentModel.findOne({ shopId })
       if (!shop) return res.send({ status: 404, msg: '没有找到该商家' })
 
-      const { typs } = shop._doc
-      if (!typs.length) res.send({ status: 404, msg: '暂无评论类型列表' })
-      else res.send({ status: 200, data: typs })
+      const { types } = shop._doc
+      if (!types.length) res.send({ status: 404, msg: '暂无评论类型列表' })
+      else res.send({ status: 200, data: types })
     } catch (err) {
       console.error(`查询评论类型列表失败,错误信息${err}`)
       res.send({ status: 0, msg: '获取评论类型列表失败' })
@@ -68,12 +68,12 @@ module.exports = router => {
       if (!typeName) return res.send({ status: 0, msg: '请填写类型名称' })
 
       const { types } = shop._doc
-      const index = types.findIndex(type => type.typeName === typeName)
-      if (index !== -1) res.send({ status: 0, msg: '该类型名称已存在' })
+      const result = types.find(type => type.typeName === typeName)
+      if (result) res.send({ status: 0, msg: '该类型名称已存在' })
       else {
         const type = createType(typeName)
         types.push(type)
-        await commentModel.findOneAndUpdate({ shopId }, { ...shop })
+        await commentModel.findOneAndUpdate({ shopId }, shop, { useFindAndModify: false })
         res.send({ status: 200, data: types })
       }
     } catch (err) {
@@ -94,7 +94,7 @@ module.exports = router => {
       else {
         type.typeName = typeName
         type.count = count
-        await commentModel.findOneAndUpdate({ shopId }, { ...shop })
+        await commentModel.findOneAndUpdate({ shopId }, shop, { useFindAndModify: false })
         res.send({ status: 200, data: types })
       }
     } catch (err) {
@@ -111,7 +111,7 @@ module.exports = router => {
       const { types } = shop._doc
       const index = types.findIndex(type => type.typeId === typeId)
       if (index !== -1) types.splice(index, 1)
-      await commentModel.findOneAndUpdate({ shopId }, { ...shop })
+      await commentModel.findOneAndUpdate({ shopId }, shop, { useFindAndModify: false })
       res.send({ status: 200, data: types })
     } catch (err) {
       console.error(`删除评论类型异常,错误信息${err}`)
@@ -156,12 +156,19 @@ module.exports = router => {
       const shop = await commentModel.findOne({ shopId })
       if (!shop) return res.send({ status: 404, msg: '没有找到该商家' })
 
-      const { commentList, types } = shop._doc
-      comment = createComment(comment)
+      const { commentList, types, labels } = shop._doc
+      if (comment.labels && Array.isArray(comment.labels)) {
+        const labelIdList = comment.labels
+        comment.labels = labels.filter(label => labelIdList.indexOf(label.labelId) !== -1)
+      }
+      if (comment.labels && typeof comment.labels === 'string') {
+        comment.labels = labels.find(label => label.labelId === comment.labels)
+      }
+      comment = await createComment(comment)
       commentList.unshift(comment)
       const type = types.find(item => item.typeId === comment.typeId)
       if (type) type.count++
-      await commentModel.findOneAndUpdate({ shopId }, { ...shop })
+      await commentModel.findOneAndUpdate({ shopId }, shop, { useFindAndModify: false })
       res.send({ status: 200, data: commentList })
     } catch (err) {
       console.error(`添加评论异常,错误信息${err}`)
@@ -177,7 +184,7 @@ module.exports = router => {
       const comment = commentList.find(item => item.commentId === commentId)
       comment.shop_reply = shop_reply
       comment.status = 1
-      await commentModel.findOneAndUpdate({ shopId }, { ...shop })
+      await commentModel.findOneAndUpdate({ shopId }, shop, { useFindAndModify: false })
       res.send({ status: 200, data: commentList })
     } catch (err) {
       console.error(`修改评论信息异常,错误信息${err}`)
