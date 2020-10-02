@@ -1,21 +1,11 @@
-// 1级路由
 import { RouteConfig } from 'vue-router'
-import Main from '@/views/main/index.vue'
-import { Children } from './children'
+import { MainChildren } from './children'
+import Index from '@/views/main/index.vue'
 
-const routes: Array<RouteConfig> = [
-  {
-    path: '/',
-    name: 'index',
-    component: Main,
-    children: Children,
-    meta: { userAuthority: 0 }
-  },
-  {
-    path: '/login',
-    name: 'login',
-    component: () => import('@/views/login/login.vue')
-  }
+const routes: RouteConfig[] = [
+  { path: '/', name: 'index', component: Index, children: MainChildren, redirect: '/home', meta: { authority: 0 } },
+  { path: '/login', name: 'login', component: () => import('@/views/login/login.vue'), meta: { authority: 0 } },
+  { path: '/signin', name: 'signin', component: () => import('@/views/shopSignin/signin.vue'), meta: { authority: 0 } }
 ]
 
 export default routes

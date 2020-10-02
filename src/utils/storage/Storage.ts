@@ -9,7 +9,7 @@ interface StorageInter<T> {
 
 export class MyStorage<T> implements StorageInter<T> {
   key: string
-  val: T
+  val!: T
   storageType: string
 
   constructor (key: string, storageType: string, val?: T) {
@@ -23,9 +23,9 @@ export class MyStorage<T> implements StorageInter<T> {
     const { storageType, key } = this
     switch (storageType) {
       case 'section':
-        return JSON.parse(window.sessionStorage.getItem(key))
+        return JSON.parse(window.sessionStorage.getItem(key) || '{}')
       default:
-        return JSON.parse(window.localStorage.getItem(key))
+        return JSON.parse(window.localStorage.getItem(key) || '{}')
     }
   }
 

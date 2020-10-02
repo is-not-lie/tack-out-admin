@@ -1,6 +1,6 @@
 <template>
   <div>
-    Turnover
+    SubCate
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class Turnover extends Vue {
+export default class SubCate extends Vue {
 
 }
 </script>

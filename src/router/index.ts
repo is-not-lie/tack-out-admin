@@ -25,10 +25,11 @@ router.beforeEach((to, from, next) => {
     else {
       const { userAuthority } = meta
       const { authority } = userStorage.val
-      if (userAuthority > authority) next({ replace: true, name: from.name })
+      if (userAuthority > authority) next({ replace: true, path: from.path })
       else next()
     }
   }
 })
+
 
 export default router

@@ -1,6 +1,6 @@
 <template>
   <div>
-    CateSub
+    Signin
   </div>
 </template>
 
@@ -8,11 +8,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class CateSub extends Vue {
+export default class Signin extends Vue {
 
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

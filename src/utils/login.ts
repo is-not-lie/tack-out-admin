@@ -1,5 +1,5 @@
 import { http } from '@/api'
-import { loginVer } from '@/tsConfig/interface/storeInterface'
+// import { loginVer } from '@/tsConfig/interface/storeInterface'
 // 手机号码校验规则
 const phoneRex = /^1[34578]\d{9}$/g
 // 储存手机验证码与发送验证码的手机号
@@ -51,17 +51,20 @@ const pwdVerify = (pwd: string) => new Promise((resolve, reject) => {
 })
 
 // 登录校验函数
-export const loginVerify = ({ phone, code, password, captcha }: loginVer): Promise<any> => new Promise((resolve, reject) => {
-  if (password) {
-    userPhone = phone
-    Promise.all([phoneVerify(phone), pwdVerify(password), captchaVerify(captcha)])
-      .then(resolve)
-      .catch(reject)
-  } else {
-    Promise.all([phoneVerify(phone), codeVerify(code)])
-      .then(resolve)
-      .catch(reject)
-  }
+interface PwdVer {
+  phone: string;
+  password: string;
+  captcha: string;
+}
+export const pwdVer = ({ phone, password, captcha }: PwdVer) => new Promise((resolve, reject) => {
+  Promise.all([phoneVerify(phone), pwdVerify(password), captchaVerify(captcha)])
+    .then(resolve)
+    .catch(reject)
+})
+export const phoneVer = (phone: string, code: string) => new Promise((resolve, reject) => {
+  Promise.all([phoneVerify(phone), codeVerify(code)])
+    .then(resolve)
+    .catch(reject)
 })
 
 // 获取svg验证码函数
@@ -70,11 +73,11 @@ export const getCaptcha = async (): Promise<string> => {
   if (svg) {
     svgText = svg.text.toLowerCase()
     return Promise.resolve(svg.data)
-  }
+  } else return Promise.resolve('')
 }
 
 // 发送手机验证码函数
-let timeOutKey = null
+let timeOutKey!: number
 export const sendCode = async (phone: string, timeOut = 60000): Promise<boolean> => {
   userPhone = phone
   clearTimeout(timeOutKey)

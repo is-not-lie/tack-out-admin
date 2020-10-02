@@ -44,13 +44,13 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { sendCode, getCaptcha, loginVerify } from '@/utils/login'
+import { sendCode, getCaptcha, pwdVer, phoneVer } from '@/utils/login'
 
 @Component
 export default class Form extends Vue {
   // 保存定时器与延时器标识
-  timer: number | null
-  intTimer: number | null
+  timer!: number | null
+  intTimer!: number
   // 发送验证码后倒计时的初始值
   sendingTime = 60
   // 是否已发送验证码
@@ -94,16 +94,16 @@ export default class Form extends Vue {
       if (this.sendingTime === 0) {
         this.sendingTime = 60
         this.isSendCode = false
-        this.$message.error('发送超时了...')
+        // this.$message.error('发送超时了...')
         clearInterval(this.intTimer)
       } else this.sendingTime--
     }, 1000)
 
     const result = sendCode(this.phone)
     if (result) {
-      this.$message.success('验证码已发送,请稍等片刻...')
+      // this.$message.success('验证码已发送,请稍等片刻...')
     } else {
-      this.$message.error('验证码发送失败,请重新尝试...')
+      // this.$message.error('验证码发送失败,请重新尝试...')
       this.sendingTime = 60
       this.isSendCode = false
       clearInterval(this.intTimer)
@@ -131,14 +131,14 @@ export default class Form extends Vue {
     const { phone, code, captcha, password, callback } = this
     try {
       if (this.isCodeLogin) {
-        await loginVerify({ phone, code })
+        await phoneVer(phone, code)
         this.$store.dispatch('login', { phone, callback })
       } else {
-        await loginVerify({ phone, captcha, password })
+        await pwdVer({ phone, captcha, password })
         this.$store.dispatch('login', { phone, password, callback })
       }
     } catch (msg) {
-      this.$message.error(msg)
+      // this.$message.error(msg)
       this.setCaptcha()
     }
   }

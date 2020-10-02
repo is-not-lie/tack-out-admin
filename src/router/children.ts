@@ -1,5 +1,6 @@
-// 二级路由
-export const Children = [
+import { RouteConfig } from 'vue-router'
+
+export const MainChildren: RouteConfig[] = [
   // 首页
   {
     path: '/home',
@@ -53,16 +54,16 @@ export const Children = [
   },
   // 分类管理
   {
-    path: '/cate/parent',
-    name: 'cate_parent',
-    component: () => import('@/views/main/category/parent.vue'),
-    mate: { userAuthority: 2 }
+    path: '/cate/main',
+    name: 'cate_main',
+    component: () => import('@/views/main/cate/mainCate.vue'),
+    meta: { userAuthority: 2 }
   },
   {
     path: '/cate/sub',
     name: 'cate_sub',
-    component: () => import('@/views/main/category/sub.vue'),
-    mate: { userAuthority: 2 }
+    component: () => import('@/views/main/cate/subCate.vue'),
+    meta: { userAuthority: 2 }
   },
   // 用户管理
   {
@@ -87,7 +88,7 @@ export const Children = [
   {
     path: '/rule/set',
     name: 'rule_set',
-    component: () => import('@/views/main/rule/set.vue'),
+    component: () => import('@/views/main/rule/rule.vue'),
     meta: { userAuthority: 3 }
   }
 ]

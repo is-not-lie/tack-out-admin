@@ -1,6 +1,6 @@
 <template>
   <div>
-    CateParent
+    MainCate
   </div>
 </template>
 
@@ -8,11 +8,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class CateParent extends Vue {
+export default class MainCate extends Vue {
 
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

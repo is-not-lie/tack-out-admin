@@ -1,6 +1,6 @@
 <template>
   <div>
-    RuleSet
+    Rule
   </div>
 </template>
 
@@ -8,11 +8,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class RuleSet extends Vue {
+export default class Rule extends Vue {
 
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

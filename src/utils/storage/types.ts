@@ -19,4 +19,5 @@ export const getValType = (val: any): string => {
   if (isStr(val)) return 'str'
   if (isNumber(val)) return 'number'
   if (isUndefinde(val)) return 'undefinde'
+  return ''
 }

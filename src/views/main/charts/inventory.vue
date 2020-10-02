@@ -1,6 +1,6 @@
 <template>
   <div>
-    ChartsInventory
+    Inventory
   </div>
 </template>
 
@@ -8,7 +8,7 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class ChartsInventory extends Vue {
+export default class Inventory extends Vue {
 
 }
 </script>

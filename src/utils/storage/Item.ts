@@ -7,18 +7,18 @@ export class ObjStorage extends MyStorage<object> {
 
   getOne (index: string): any {
     const { val } = this
-    return val[index]
+    return (val as any)[index]
   }
 
   setOne (index: string, newVal: any): void {
-    const { val } = this
-    val[index] = newVal
+    const { val } = this;
+    (val as any)[index] = newVal
     this.set(val)
   }
 
   delOne (index: string): void {
     const { val } = this
-    delete val[index]
+    delete (val as any)[index]
     this.set(val)
   }
 }

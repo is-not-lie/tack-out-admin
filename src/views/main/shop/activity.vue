@@ -1,6 +1,6 @@
 <template>
   <div>
-    ShopActivity
+    Activity
   </div>
 </template>
 
@@ -8,11 +8,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class ShopActivity extends Vue {
+export default class Activity extends Vue {
 
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

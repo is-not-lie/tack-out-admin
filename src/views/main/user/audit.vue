@@ -1,6 +1,6 @@
 <template>
   <div>
-    UserAudit
+    Audit
   </div>
 </template>
 
@@ -8,11 +8,11 @@
 import { Component, Vue } from 'vue-property-decorator'
 
 @Component
-export default class UserAudit extends Vue {
+export default class Audit extends Vue {
 
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 
 </style>

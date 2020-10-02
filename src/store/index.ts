@@ -2,23 +2,25 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import actions from './actions'
 import getters from './getters'
-import { commitData } from '@/tsConfig/interface/storeInterface'
 import { createStorage } from '@/utils/storage'
 
 const userStorage = createStorage({ key: 'user' })
+
+interface CommitData {
+  key: string;
+  val: any;
+}
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    user: userStorage.val,
-    globalImgs: {},
-    roles: []
+    user: userStorage.val || {}
   },
   mutations: {
-    COMMIT (state: any, data: commitData): void {
-      const { key, val } = data
-      state[key] = val
+    COMMIT (state, data: CommitData) {
+      const { key, val } = data;
+      (state as any)[key] = val
     }
   },
   actions,

@@ -3,7 +3,7 @@
     <ul>
       <transition v-for="(img, i) in loginImgs" :key="i" name="img">
         <li v-show="currentIndex === i">
-          <img :src="img" />
+          <img :src="require(`@/assets/images/${img}`)" />
         </li>
       </transition>
     </ul>
@@ -19,11 +19,16 @@ import Form from '@/components/Login/Form.vue'
   components: { Form }
 })
 export default class Login extends Vue {
-  timer: number | null
-  loginImgs: Array<string> = this.$store.state.globalImgs?.loginPageImgs
+  timer!: number
+  loginImgs = [
+    'login_bg1.jpg',
+    'login_bg2.jpg',
+    'login_bg3.jpg',
+    'login_bg4.jpg'
+  ]
   currentIndex = 0
 
-  mounted () {
+  mounted() {
     this.timer = setInterval(() => {
       this.currentIndex++
       if (this.currentIndex >= this.loginImgs.length) {
@@ -32,7 +37,7 @@ export default class Login extends Vue {
     }, 4000)
   }
 
-  beforeDestroy () { clearInterval(this.timer) }
+  beforeDestroy() { clearInterval(this.timer) }
 }
 </script>
 
