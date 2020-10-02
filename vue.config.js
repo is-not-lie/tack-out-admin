@@ -18,6 +18,16 @@ module.exports = {
       },
       scss: {
         prependData: '@import "./src/assets/sass/index.scss";'
+      },
+      less: {
+        lessOptions: {
+          modifyVars: {
+            'primary-color': '#FFD161',
+            'link-color': '#ffb000',
+            'border-radius-base': '4px',
+          },
+          javascriptEnabled: true,
+        },
       }
     }
   },

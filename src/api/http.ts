@@ -1,5 +1,6 @@
 import axios from 'axios'
 import NProgress from 'nprogress'
+import { message } from 'ant-design-vue'
 import 'nprogress/nprogress.css'
 import { createStorage } from '@/utils/storage'
 // import { BASE_URL } from '@/config'
@@ -19,8 +20,8 @@ axios.interceptors.request.use(
     return config
   },
   (): void => {
-  NProgress.done()
-  // Message.error('请求发送失败')
+    NProgress.done()
+    message.error('请求发送失败')
   }
 )
 
@@ -30,11 +31,11 @@ axios.interceptors.response.use(
     const { data, status, msg } = response.data
     return status >= 200 && status < 300
       ? data || true
-      : console.log(msg)
+      : message.error(msg)
   },
   (): void => {
-  NProgress.done()
-  // Message.error('服务器没有响应')
+    NProgress.done()
+    message.error('服务器没有响应')
   }
 )
 

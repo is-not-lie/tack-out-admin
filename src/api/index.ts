@@ -68,7 +68,7 @@ export const http = {
   // 请求注销商家
   reqDelShop: (_id: string) => axios.post('/shop/del', { _id }),
   // 请求用户订单列表
-  reqUserOrders: (userId: string) => axios.get('/user/order/list', { params: { userId } } ),
+  reqUserOrders: (userId: string) => axios.get('/user/order/list', { params: { userId } }),
   // 请求新增订单
   reqAddOrder: (reqParams: AddOrderParams) => axios.post('/user/order/add', reqParams),
   // 请求删除订单
@@ -78,7 +78,7 @@ export const http = {
   // 请求指定商品信息
   reqGoods: (reqParams: GoodsInfoParams) => axios.get('/shop/goods', { params: reqParams }),
   // 请求商家商品列表
-  reqGoodsList: (shopId: string) => axios.get('/shop/goods/list', { params: { shopId } } ),
+  reqGoodsList: (shopId: string) => axios.get('/shop/goods/list', { params: { shopId } }),
   // 请求新增商品
   reqAddGoods: (reqParams: AddGoodsParams) => axios.post('/shop/goods/add', reqParams),
   // 请求修改商品信息
@@ -86,7 +86,7 @@ export const http = {
   // 请求删除商品
   reqDelGoods: (reqParams: DelGoodsParams) => axios.post('/shop/goods/del', reqParams),
   // 请求商家商品分类列表
-  reqGoodsCates: (shopId: string) => axios.get('/shop/cate/list', { params: { shopId } } ),
+  reqGoodsCates: (shopId: string) => axios.get('/shop/cate/list', { params: { shopId } }),
   // 请求新增商品分类
   reqAddGoodsCate: (reqParams: AddGoodsCateParams) => axios.post('/shop/cate/add', reqParams),
   // 请求编辑商品分类
@@ -94,7 +94,7 @@ export const http = {
   // 请求删除商品分类
   reqDelGoodsCate: (reqParams: DelGoodsCateParams) => axios.post('/shop/cate/del', reqParams),
   // 请求商家商品标签列表
-  reqGoodsLabels: (shopId: string) => axios.get('/shop/comment/labels', { params: { shopId } } ),
+  reqGoodsLabels: (shopId: string) => axios.get('/shop/comment/labels', { params: { shopId } }),
   // 请求评论类型标签列表
   reqCommentTypes: (shopId: string) => axios.get('/shop/comment/types', { params: { shopId } }),
   // 请求新增评论类型标签

@@ -10,7 +10,7 @@
     <form @submit.prevent="handleSubmit" @reset="handleReset">
       <section class="code-login" v-show="isCodeLogin">
         <div>
-          <i class="iconfont icon-phone"></i>
+          <a-icon type="phone" />
           <input type="del" placeholder="手机号" maxlength="11" v-model="phone">
         </div>
         <div>
@@ -21,15 +21,15 @@
       </section>
       <section class="pwd-login" v-show="!isCodeLogin">
         <div>
-          <i class="iconfont icon-phone"></i>
+          <a-icon type="phone" />
           <input type="del" placeholder="手机号" maxlength="11" v-model="phone">
         </div>
         <div>
-          <i class="el-icon-lock"></i>
+          <a-icon type="lock" />
           <input type="password" placeholder="密码" minlength="6" v-model="password">
         </div>
         <div>
-          <i class="iconfont icon-captcha"></i>
+          <a-icon type="code" />
           <input type="text" maxlength="4" placeholder="验证码" v-model="captcha">
           <span class="svg" v-html="svgCaptcha" @click="setCaptcha"></span>
         </div>
@@ -94,16 +94,16 @@ export default class Form extends Vue {
       if (this.sendingTime === 0) {
         this.sendingTime = 60
         this.isSendCode = false
-        // this.$message.error('发送超时了...')
+        this.$message.error('发送超时了...')
         clearInterval(this.intTimer)
       } else this.sendingTime--
     }, 1000)
 
     const result = sendCode(this.phone)
     if (result) {
-      // this.$message.success('验证码已发送,请稍等片刻...')
+      this.$message.success('验证码已发送,请稍等片刻...')
     } else {
-      // this.$message.error('验证码发送失败,请重新尝试...')
+      this.$message.error('验证码发送失败,请重新尝试...')
       this.sendingTime = 60
       this.isSendCode = false
       clearInterval(this.intTimer)
@@ -138,7 +138,7 @@ export default class Form extends Vue {
         this.$store.dispatch('login', { phone, password, callback })
       }
     } catch (msg) {
-      // this.$message.error(msg)
+      this.$message.error(msg)
       this.setCaptcha()
     }
   }

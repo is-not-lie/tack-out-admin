@@ -26,9 +26,10 @@ export default class Login extends Vue {
     'login_bg3.jpg',
     'login_bg4.jpg'
   ]
+
   currentIndex = 0
 
-  mounted() {
+  mounted () {
     this.timer = setInterval(() => {
       this.currentIndex++
       if (this.currentIndex >= this.loginImgs.length) {
@@ -37,7 +38,7 @@ export default class Login extends Vue {
     }, 4000)
   }
 
-  beforeDestroy() { clearInterval(this.timer) }
+  beforeDestroy () { clearInterval(this.timer) }
 }
 </script>
 
