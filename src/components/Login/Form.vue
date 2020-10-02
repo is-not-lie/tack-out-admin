@@ -36,7 +36,7 @@
       </section>
       <section class="btns">
         <button type="submit">登录</button>
-        <button type="reset">重置</button>
+        <button type="reset" @click="handleReset">重置</button>
       </section>
     </form>
   </section>

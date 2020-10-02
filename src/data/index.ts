@@ -3,25 +3,25 @@ const shopChildren = [
     title: '店铺详情',
     path: '/shop/info',
     name: 'shop_info',
-    icon: 'el-icon-info'
+    type: 'shop'
   },
   {
     title: '店铺商品',
     path: '/shop/goods',
     name: 'shop_goods',
-    icon: 'el-icon-s-goods'
+    type: 'gift'
   },
   {
     title: '店铺活动',
     path: '/shop/activity',
     name: 'shop_activity',
-    icon: 'iconfont icon-activity'
+    type: 'tags'
   },
   {
     title: '客户评论',
     path: '/shop/comment',
     name: 'shop_comment',
-    icon: 'el-icon-s-comment'
+    type: 'message'
   }
 ]
 const chartsChildren = [
@@ -29,19 +29,19 @@ const chartsChildren = [
     title: '销量',
     path: '/charts/sales',
     name: 'charts_sales',
-    icon: 'el-icon-s-marketing'
+    type: 'fund'
   },
   {
     title: '营业额',
     path: '/charts/turnover',
     name: 'charts_turnover',
-    icon: 'iconfont icon-money'
+    type: 'line-chart'
   },
   {
     title: '库存',
     path: '/charts/inventory',
     name: 'charts_inventory',
-    icon: 'iconfont icon-coin'
+    type: 'fall'
   }
 ]
 const cateChildren = [
@@ -49,13 +49,13 @@ const cateChildren = [
     title: '主分类',
     path: '/cate/parent',
     name: 'cate_parent',
-    icon: 'iconfont icon-superclass'
+    type: 'appstore'
   },
   {
     title: '子分类',
     path: '/cate/sub',
     name: 'cate_sub',
-    icon: 'iconfont icon-subclass'
+    type: 'branches'
   }
 ]
 const userChildren = [
@@ -63,13 +63,13 @@ const userChildren = [
     title: '商家审核',
     path: '/user/audit',
     name: 'user_audit',
-    icon: 'el-icon-s-check'
+    type: 'unlock'
   },
   {
     title: '商家管理',
     path: '/user/shop',
     name: 'user_shop',
-    icon: 'el-icon-s-shop'
+    type: 'shop'
   }
 ]
 const ruleChildren = [
@@ -77,13 +77,13 @@ const ruleChildren = [
     title: '角色管理',
     path: '/rule/role',
     name: 'rule_role',
-    icon: 'el-icon-s-custom'
+    type: 'usergroup-add'
   },
   {
     title: '权限设置',
     path: '/rule/set',
     name: 'rule_set',
-    icon: 'el-icon-s-tools'
+    type: 'key'
   }
 ]
 
@@ -91,41 +91,47 @@ export const menuData = [
   {
     title: '首页',
     name: 'home',
-    icon: 'iconfont icon-home',
+    type: 'home',
+    theme: 'filled',
     authId: 0
   },
   {
     title: '商家',
     name: 'shop',
-    icon: 'el-icon-office-building',
+    type: 'shop',
+    theme: 'filled',
     authId: 1,
     children: shopChildren
   },
   {
     title: '图形图表',
     name: 'charts',
-    icon: 'el-icon-pie-chart',
+    type: 'pie-chart',
+    theme: 'filled',
     authId: 1,
     children: chartsChildren
   },
   {
     title: '分类管理',
     name: 'cate',
-    icon: 'el-icon-setting',
+    type: 'appstore',
+    theme: 'filled',
     authId: 2,
     children: cateChildren
   },
   {
     title: '用户管理',
     name: 'user',
-    icon: 'el-icon-user',
+    type: 'edit',
+    theme: 'filled',
     authId: 2,
     children: userChildren
   },
   {
     title: '权限管理',
     name: 'rule',
-    icon: 'el-icon-unlock',
+    type: 'lock',
+    theme: 'filled',
     authId: 3,
     children: ruleChildren
   }
