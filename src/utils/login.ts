@@ -57,6 +57,7 @@ interface PwdVer {
   captcha: string;
 }
 export const pwdVer = ({ phone, password, captcha }: PwdVer) => new Promise((resolve, reject) => {
+  userPhone = phone
   Promise.all([phoneVerify(phone), pwdVerify(password), captchaVerify(captcha)])
     .then(resolve)
     .catch(reject)
