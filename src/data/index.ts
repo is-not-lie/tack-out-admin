@@ -47,8 +47,8 @@ const chartsChildren = [
 const cateChildren = [
   {
     title: '主分类',
-    path: '/cate/parent',
-    name: 'cate_parent',
+    path: '/cate/main',
+    name: 'cate_main',
     type: 'appstore'
   },
   {
@@ -90,6 +90,7 @@ const ruleChildren = [
 export const menuData = [
   {
     title: '首页',
+    path: '/home',
     name: 'home',
     type: 'home',
     theme: 'filled',
