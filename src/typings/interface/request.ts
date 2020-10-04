@@ -1,7 +1,9 @@
+import { AxiosResponse } from 'axios'
 // 登录接口参数
 export interface LoginParams {
   phone: string;
   password?: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 注册接口参数
 export interface SigninParams {
@@ -10,6 +12,7 @@ export interface SigninParams {
   password?: string;
   avatar_url?: string;
   shipping_address?: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 修改用户信息接口参数
 export interface UserEditParams {
@@ -19,12 +22,14 @@ export interface UserEditParams {
   password?: string;
   avatar_url?: string;
   shipping_address?: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 添加角色接口参数
 export interface AddRoleParams {
   roleName: string;
   creator: string;
   authority?: number;
+  callback?: (params?: AxiosResponse) => void;
 }
 
 // 更新角色接口参数
@@ -33,12 +38,14 @@ export interface EditRoleParams {
   roleName: string;
   editor: string;
   authority?: number;
+  callback?: (params?: AxiosResponse) => void;
 }
 
 // 设置权限等级接口参数
 export interface EditRuleParams {
   userId: string;
   roleId: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 
 // 新增商家接口参数
@@ -55,6 +62,7 @@ export interface AddShopParams {
   disPic?: number;
   activity?: Array<string|object>;
   announcement?: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 编辑商家接口参数
 export interface EditShopParams {
@@ -77,6 +85,7 @@ export interface EditShopParams {
   shopStatus?: number;
   monthly_sales?: number;
   auditStatus?: number;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 新增订单接口参数
 interface GoodsObj {
@@ -92,22 +101,26 @@ interface OrderObj {
 export interface AddOrderParams {
   userId: string;
   order: OrderObj;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 删除订单接口参数
 export interface DelOrderParams {
   userId: string;
   orderId: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 修改订单状态接口参数
 export interface EditOrderParams {
   userId: string;
   orderId: string;
   status: number;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 获取指定商品信息接口参数
 export interface GoodsInfoParams {
   shopId: string;
   goodsId: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 
 // 新增商品接口参数
@@ -126,6 +139,7 @@ interface AddGoodsObj {
 export interface AddGoodsParams {
   shopId: string;
   goods: AddGoodsObj;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 编辑商品接口参数
 interface EditGoodsObj{
@@ -147,17 +161,20 @@ interface EditGoodsObj{
 export interface EditGoodsParams {
   shopId: string;
   goods: EditGoodsObj;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 删除商品接口参数
 export interface DelGoodsParams {
   shopId: string;
   goodsId: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 新增商品分类接口参数
 export interface AddGoodsCateParams {
   shopId: string;
   cateName: string;
   icon?: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 编辑分类接口参数
 export interface EditGoodsCateParams extends AddGoodsCateParams {
@@ -166,12 +183,14 @@ export interface EditGoodsCateParams extends AddGoodsCateParams {
 export interface DelGoodsCateParams {
   shopId: string;
   cateId: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 
 // 新增评论类型标签接口参数
 export interface AddCommentCateParams {
   shopId: string;
   typeName: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 编辑评论类型接口参数
 export interface EditCommentCateParams {
@@ -179,16 +198,19 @@ export interface EditCommentCateParams {
   typeName: string;
   typeId: string;
   count?: number;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 删除评论类型标签接口参数
 export interface DelCommentCateParams {
   shopId: string;
   typeId: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 获取评论信息接口参数
 export interface CommentInfoParams {
   shopId: string;
   commentId: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 
 // 新增评论接口参数
@@ -203,17 +225,20 @@ interface AddCommentObj {
 export interface AddCommentParams {
   shopId: string;
   comment: AddCommentObj;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 编辑评论接口参数
 export interface EditCommentParams {
   shopId: string;
   commentId: string;
   shop_reply: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 新增主分类接口参数
 export interface AddCateParams {
   cateName: string;
   icon?: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 编辑主分类接口参数
 export interface EditCateParams extends AddCateParams {
@@ -224,21 +249,25 @@ export interface EditCateParams extends AddCateParams {
 export interface AddSubCateParams {
   _id: string;
   subName: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 编辑子分类接口参数
 export interface EditSubCateParams {
   _id: string;
   subId: string;
   subName: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 // 删除子分类接口参数
 export interface DelSubCateParams {
   _id: string;
   subId: string;
+  callback?: (params?: AxiosResponse) => void;
 }
 
 // 获取区县信息接口参数
 export interface CountyParams {
   province: string;
   city: string;
+  callback?: (params?: AxiosResponse) => void;
 }
