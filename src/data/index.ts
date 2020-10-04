@@ -72,20 +72,6 @@ const userChildren = [
     type: 'shop'
   }
 ]
-const ruleChildren = [
-  {
-    title: '角色管理',
-    path: '/rule/role',
-    name: 'rule_role',
-    type: 'usergroup-add'
-  },
-  {
-    title: '权限设置',
-    path: '/rule/set',
-    name: 'rule_set',
-    type: 'key'
-  }
-]
 
 export const menuData = [
   {
@@ -130,10 +116,10 @@ export const menuData = [
   },
   {
     title: '权限管理',
+    path: '/rule',
     name: 'rule',
     type: 'lock',
     theme: 'filled',
     authId: 3,
-    children: ruleChildren
   }
 ]

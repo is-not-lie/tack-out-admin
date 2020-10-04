@@ -20,34 +20,39 @@
         </h3>
         <a-card-meta>
           <div slot="description">
+            <p>注册时间:<a-tag color="green">{{user.signinTime}}</a-tag></p>
             <p>手机号码:<a-tag color="blue">{{user.phone}}</a-tag></p>
             <p>所属角色:<a-tag :color="user.authority | color">{{user.authority | tagText}}</a-tag></p>
           </div>
         </a-card-meta>
       </a-card>
-      <a-modal
-      v-model="visible"
-      okText="确定"
-      cancelText="取消"
-      @ok="handleOk">
-      <div class="set-auth">
-        <h3>
-          <a-tag color="red">角色授权</a-tag>
-        </h3>
-        <a-radio-group v-model="roleId">
-          <a-radio :value="role.roleId" v-for="role in roles" :key="role.roleId">
-            <a-tag :color="role.authority | color">{{ role.roleName }}</a-tag>
+      <a-modal :closable="false" v-model="visible">
+        <header slot="title" :style="{ textAlign: 'center', fontSize: '20px' }">
+          <a-tag color="red">用户授权</a-tag>
+        </header>
+        <a-radio-group v-model="authority" :style="{ display: 'flex', justifyContent: 'center' }">
+          <a-radio :value="0">
+            <a-tag :color="0 | color">{{0 | tagText}}</a-tag>
+          </a-radio>
+          <a-radio :value="1">
+            <a-tag :color="1 | color">{{1 | tagText}}</a-tag>
+          </a-radio>
+          <a-radio :value="2">
+            <a-tag :color="2 | color">{{2 | tagText}}</a-tag>
           </a-radio>
         </a-radio-group>
-      </div>
-    </a-modal>
+        <footer slot="footer" :style="{ textAlign: 'center' }">
+          <a-button @click="visible = false">取消</a-button>
+          <a-button @click="handleOk" type="primary">确定</a-button>
+        </footer>
+      </a-modal>
     </section>
     <footer>
       <a-pagination
-        show-size-changer
-        :default-current="3"
-        :total="500"
-        @showSizeChange="onShowSizeChange"
+        :default-current="pageNum"
+        :total="total"
+        :pageSize="pageSize"
+        @change="handleChange"
       />
     </footer>
   </section>
@@ -55,7 +60,18 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import { RoleAuth, RoleColor } from './role'
+
+enum RoleAuth {
+  '普通用户',
+  '商家用户',
+  '管理员'
+}
+
+enum RoleColor {
+  'blue',
+  'yellow',
+  'red'
+}
 
 @Component({
   filters: {
@@ -65,21 +81,26 @@ import { RoleAuth, RoleColor } from './role'
 })
 export default class Rule extends Vue {
   userList = []
-  roles = []
   searchLoading = false
   visible = false
-  roleId = ''
-  editUserId = ''
+  authority = 0
+  userId = ''
+  pageNum = 1
+  total = 0
+  pageSize = 8
 
-  // 初始化数据
-  created () {
-    this.$store.dispatch('getUsers')
-    this.$store.dispatch('getRoles')
+  initUserList () {
+    this.$store.dispatch('getUsers', this.pageNum)
     setTimeout(() => {
-      this.userList = this.$store.state.userList
-      this.roles = this.$store.state.roles
+      const { list, total, pageSize } = this.$store.state.userList
+      this.userList = list
+      this.total = total
+      this.pageSize = pageSize
     }, 200)
   }
+
+  // 初始化数据
+  created () { this.initUserList() }
 
   // 根据手机号搜索用户
   onSearch (value: string) {
@@ -88,7 +109,6 @@ export default class Rule extends Vue {
       this.searchLoading = true
       this.$store.dispatch('searchUser', value)
       setTimeout(() => {
-        this.userList = this.$store.state.userList
         this.searchLoading = false
       }, 400)
     }
@@ -96,20 +116,20 @@ export default class Rule extends Vue {
 
   // 修改用户权限
   editUser (user: any) {
-    this.editUserId = user._id
+    this.userId = user._id
+    this.authority = user.authority
     this.visible = true
   }
 
   handleOk () {
-    const { editUserId, roleId } = this
-    this.$store.dispatch('editUser', { userId: editUserId, roleId })
-    setTimeout(() => {
-      this.visible = false
-    }, 400)
+    const { userId, authority } = this
+    this.$store.dispatch('editUser', { userId, authority })
+    this.visible = false
   }
 
-  onShowSizeChange (current: number, pageSize: number) {
-    console.log(current, pageSize)
+  handleChange (num: number) {
+    this.pageNum = num
+    this.initUserList()
   }
 }
 </script>
@@ -123,43 +143,43 @@ export default class Rule extends Vue {
       width: 30%;
     }
   }
-  footer{
-    text-align: center;
-    padding: 10px 0;
-  }
-}
-.users{
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  .user{
+  .users{
     display: flex;
-    align-items: center;
-    position: relative;
-    .ant-tag{
-      position: absolute;
-      top: 50%;
-      right: 0;
-      transform: translateY(-50%);
-      cursor: pointer;
+    justify-content: center;
+    flex-wrap: wrap;
+    .user{
+      display: flex;
+      align-items: center;
+      position: relative;
+      .ant-tag{
+        position: absolute;
+        top: 50%;
+        right: 0;
+        transform: translateY(-50%);
+        cursor: pointer;
+      }
+      span{
+        font-size: 14px;
+        margin-left: 10px;
+      }
     }
-    span{
-      font-size: 14px;
-      margin-left: 10px;
-    }
-  }
-  .ant-card{
-    margin: 10px;
-    width: 23%;
-    .ant-card-meta{
-      p{
-        display: flex;
-        align-items: center;
-        .ant-tag{
-          margin-left: 10px;
+    .ant-card{
+      margin: 10px;
+      width: 23%;
+      .ant-card-meta{
+        p{
+          display: flex;
+          align-items: center;
+          .ant-tag{
+            margin-left: 10px;
+          }
         }
       }
     }
+  }
+  footer{
+    text-align: center;
+    padding: 10px 0;
   }
 }
 </style>

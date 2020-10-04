@@ -1,10 +1,9 @@
 import axios from './http'
+import { PAGESIZE } from '@/config'
 import {
   LoginParams,
   SigninParams,
   UserEditParams,
-  AddRoleParams,
-  EditRoleParams,
   EditRuleParams,
   AddShopParams,
   EditShopParams,
@@ -43,16 +42,8 @@ export const http = {
   reqSendCode: (phone: string) => axios.get('/sendcode', { params: { phone } }),
   // 请求修改用户信息
   reqEditUser: (reqParams: UserEditParams) => axios.post('/user/edit', reqParams),
-  // 请求新增角色
-  reqAddRole: (reqParams: AddRoleParams) => axios.post('/roles/add', reqParams),
-  // 请求删除角色
-  reqDelRole: (roleId: string) => axios.post('/roles/del', { roleId }),
-  // 请求更新角色信息
-  reqEditRole: (reqParams: EditRoleParams) => axios.post('/roles/edit', reqParams),
-  // 请求角色列表
-  reqRoles: () => axios.get('/roles'),
   // 请求用户列表
-  reqUsers: () => axios.get('/user/list'),
+  reqUsers: (pageNum: number) => axios.get('/user/list', { params: { pageNum, pageSize: PAGESIZE } }),
   // 请求搜索用户
   reqSeachUser: (phone: string) => axios.get('/user/seach', { params: { phone } }),
   // 请求设置用户权限等级

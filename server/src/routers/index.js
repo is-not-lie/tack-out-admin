@@ -11,13 +11,12 @@ router.get('/api/global_imgs', async (req, res) => {
   }
 })
 
-require('./user')(router) // ok
-require('./shop')(router) // ok
-require('./order')(router) // ok
-require('./goods')(router) // ok
+require('./user')(router)
+require('./shop')(router)
+require('./order')(router)
+require('./goods')(router)
 require('./comment')(router)
-require('./category')(router) // ok
-require('./role')(router) // ok
+require('./category')(router)
 require('./upload')(router)
 require('./cities')(router)
 

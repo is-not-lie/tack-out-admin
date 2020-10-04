@@ -22,30 +22,12 @@ export interface UserEditParams {
   password?: string;
   avatar_url?: string;
   shipping_address?: string;
-  callback?: (params?: AxiosResponse) => void;
-}
-// 添加角色接口参数
-export interface AddRoleParams {
-  roleName: string;
-  creator: string;
-  authority?: number;
-  callback?: (params?: AxiosResponse) => void;
-}
-
-// 更新角色接口参数
-export interface EditRoleParams {
-  roleId: string;
-  roleName: string;
-  editor: string;
-  authority?: number;
-  callback?: (params?: AxiosResponse) => void;
 }
 
 // 设置权限等级接口参数
 export interface EditRuleParams {
   userId: string;
-  roleId: string;
-  callback?: (params?: AxiosResponse) => void;
+  authority: number;
 }
 
 // 新增商家接口参数

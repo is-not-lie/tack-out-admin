@@ -16,32 +16,30 @@ export const login = async ({ commit }: any, data: LoginParams) => {
   }
 }
 
-export const getUsers = async ({ commit }: any) => {
-  const userList = await http.reqUsers()
+export const getUsers = async ({ commit }: any, pageNum: number) => {
+  const userList = await http.reqUsers(pageNum)
   if (userList) commit('COMMIT', { key: 'userList', val: userList })
 }
 
-export const searchUser = async ({ state, commit }: any, phone: string) => {
+export const searchUser = async ({ state }: any, phone: string) => {
   const user: any = await http.reqSeachUser(phone)
-  if (user) {
-    const { userList } = state
-    const index = userList.findIndex((item: { _id: any }) => item._id === user._id)
-    if (index !== -1) userList.splice(index, 1)
-    else userList.pop()
-    userList.unshift(user)
-    commit('COMMIT', { key: 'userList', val: userList })
+  if (user.phone) {
+    const { list } = state.userList
+    const index = list.findIndex((item: { _id: any }) => item._id === user._id)
+    if (index !== -1) list.splice(index, 1)
+    else list.pop()
+    list.unshift(user)
   }
 }
 
 export const editUser = async ({ state }: any, params: EditRuleParams) => {
-  const { userId, roleId } = params
-  const result = await http.reqEditRule({ userId, roleId })
+  const { userId, authority } = params
+  const result = await http.reqEditRule({ userId, authority })
   if (result) {
-    const { userList, roles } = state
-    const user = userList.find((item: { _id: string }) => item._id === userId)
-    const role = roles.find((item: { roleId: string }) => item.roleId === roleId)
-    if (user && role) {
-      user.authority = role.authority
+    const { list } = state.userList
+    const user = list.find((item: { _id: string }) => item._id === userId)
+    if (user) {
+      user.authority = authority
     }
   }
 }

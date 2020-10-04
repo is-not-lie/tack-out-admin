@@ -6,6 +6,7 @@ const sendCode = require('../utils/sendSms.js')
 const userModel = require('../models/user')
 const orderModel = require('../models/order')
 const { TOKEN_KEY, TOKEN_TIME, svgConfig, SERVER } = require('../config')
+const pageFile = require('../utils/pageFile')
 const avatar_url = `http://${SERVER.host}:${SERVER.port}/images/default.png`
 
 const createUser = (user) => {
@@ -87,6 +88,47 @@ module.exports = router => {
     } catch (err) {
       console.error(`向用户发送手机验证码异常, 错误信息:${err}`)
       res.send({ status: 0, msg: '当前网络繁忙,请稍后重新尝试' })
+    }
+  })
+  // 请求用户列表路由
+  router.get('/api/user/list', async (req, res) => {
+    const { pageNum, pageSize } = req.query
+    try {
+      const userList = await userModel.find({ authority: { $ne: 3 } }, { password: 0, __v: 0 })
+      if (userList.length) res.send({ status: 200, data: pageFile(userList, pageNum, pageSize) })
+      else res.send({ status: 404, msg: '当前暂无用户' })
+    } catch (err) {
+      console.error(`查询用户列表异常,错误信息${err}`)
+      res.send({ status: 0, msg: '获取用户列表失败' })
+    }
+  })
+  // 根据手机号搜索用户列表
+  router.get('/api/user/seach', async (req, res) => {
+    const { phone } = req.query
+    if (!phone) return res.send({ status: 0, msg: '请输入手机号' })
+
+    try {
+      const user = await userModel.findOne({ phone, authority: { $ne: 3 } }, { password: 0, __v: 0 })
+      if (!user) res.send({ status: 404, msg: '没有找到该用户' })
+      else res.send({ status: 200, data: user })
+    } catch (err) {
+      console.error(`搜索用户异常,错误信息${err}`)
+      res.send({ status: 0, msg: '没有找到用户信息' })
+    }
+  })
+  // 更新用户权限
+  router.post('/api/user/rule/edit', async (req, res) => {
+    const { userId, authority } = req.body
+    try {
+      const user = await userModel.findById(userId)
+      if (!user) res.send({ status: 404, msg: '该用户不存在' })
+      else {
+        await userModel.findByIdAndUpdate(userId, { $set: { authority } }, { useFindAndModify: false })
+        res.send({ status: 200 })
+      }
+    } catch (err) {
+      console.error(`角色权限更改异常,错误信息${err}`)
+      res.send({ status: 0, msg: '权限编辑失败' })
     }
   })
 }

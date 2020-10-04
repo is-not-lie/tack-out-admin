@@ -80,14 +80,8 @@ export const MainChildren: RouteConfig[] = [
   },
   // 权限管理
   {
-    path: '/rule/role',
-    name: 'rule_role',
-    component: () => import('@/views/main/rule/role.vue'),
-    meta: { userAuthority: 3 }
-  },
-  {
-    path: '/rule/set',
-    name: 'rule_set',
+    path: '/rule',
+    name: 'rule',
     component: () => import('@/views/main/rule/rule.vue'),
     meta: { userAuthority: 3 }
   }
