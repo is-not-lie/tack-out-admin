@@ -1,5 +1,6 @@
 const md5 = require('md5')
 const jwt = require('jsonwebtoken')
+const dayjs = require('dayjs')
 const svgCaptcha = require('svg-captcha')
 const sendCode = require('../utils/sendSms.js')
 const userModel = require('../models/user')
@@ -11,9 +12,10 @@ const createUser = (user) => {
   return {
     phone: user.phone,
     userName: user.userName || user.phone,
-    password: md5(user.password) || '',
+    password: user.password ? md5(user.password) : '',
     shipping_address: user.shipping_address || [],
-    avatar_url: user.avatar_url || avatar_url
+    avatar_url: user.avatar_url || avatar_url,
+    signinTime: dayjs().format('YYYY-MM-DD')
   }
 }
 

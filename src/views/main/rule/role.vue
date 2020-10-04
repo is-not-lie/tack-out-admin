@@ -1,7 +1,6 @@
 <template>
   <section>
     <header class="role-header">
-      <a-button type="primary" icon="arrow-left" @click="$router.back()">返回</a-button>
       <a-button type="primary" icon="user-add" @click="showAdd">新增角色</a-button>
     </header>
     <a-table
@@ -113,11 +112,8 @@ export default class Role extends RoleColumns {
       })
     }
 
-    setTimeout(() => {
-      this.data = this.$store.state.roles
-      this.visible = false
-      this.isLoading = false
-    }, 400)
+    this.visible = false
+    this.isLoading = false
   }
 
   showDel (row: any) {
@@ -127,11 +123,7 @@ export default class Role extends RoleColumns {
       okText: '确定',
       cancelText: '取消',
       maskClosable: true,
-      onOk: () => {
-        return this.$store.dispatch('delRole', roleId)
-          .then((roles) => { this.data = roles })
-          .catch((msg) => this.$message.error(msg))
-      }
+      onOk: () => this.$store.dispatch('delRole', roleId).catch((msg) => this.$message.error(msg))
     })
   }
 }

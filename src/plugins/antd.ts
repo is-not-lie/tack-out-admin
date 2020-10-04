@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import { message, Form, Button, Layout, Icon, Menu, Table, ConfigProvider, Tag, Modal, Input, Radio } from 'ant-design-vue'
+import { message, Form, Button, Layout, Icon, Menu, Table, ConfigProvider, Tag, Modal, Input, Radio, Card, Avatar, Tooltip, Pagination } from 'ant-design-vue'
 
 const component = [
   Form,
@@ -12,7 +12,11 @@ const component = [
   Tag,
   Modal,
   Input,
-  Radio
+  Radio,
+  Card,
+  Avatar,
+  Tooltip,
+  Pagination
 ]
 
 Vue.prototype.$message = message

@@ -1,12 +1,12 @@
 import Vue, { VNodeChildren } from 'vue'
 
-enum RoleAuth {
+export enum RoleAuth {
   '普通用户',
   '商家用户',
   '管理员',
   '超级管理员'
 }
-enum RoleColor {
+export enum RoleColor {
   'blue',
   '#FFD161',
   'rgb(250, 170, 160)',

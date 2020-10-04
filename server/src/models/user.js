@@ -5,10 +5,13 @@ const mongoose = require('mongoose')
 const userSchema = new mongoose.Schema({
   userName: String,
   password: String,
+  signinTime: String,
+  shopId: String,
+  auditStatus: Number, // 审核状态
   phone: { type: String, required: true, unique: true },
   avatar_url: String,
   authority: { type: Number, default: 0 }, // 用户权限, 0为普通用户 1为商家 2为管理员 3为admin
-  shipping_address: String
+  shipping_address: Array
 })
 
 const userModel = mongoose.model('users', userSchema)
