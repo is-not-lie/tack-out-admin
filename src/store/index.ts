@@ -17,7 +17,8 @@ export default new Vuex.Store({
   state: {
     user: userStorage.val || {},
     roles: [],
-    userList: []
+    userList: [],
+    cates: []
   },
   mutations: {
     COMMIT (state, data: CommitData) {

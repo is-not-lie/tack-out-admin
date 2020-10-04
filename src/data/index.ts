@@ -120,6 +120,6 @@ export const menuData = [
     name: 'rule',
     type: 'lock',
     theme: 'filled',
-    authId: 3,
+    authId: 3
   }
 ]

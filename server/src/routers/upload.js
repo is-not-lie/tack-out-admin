@@ -3,7 +3,7 @@ const { join, extname } = require('path')
 const fs = require('fs')
 const { SERVER } = require('../config')
 
-const dirPath = join(__dirname, '../..', '/public')
+const dirPath = join(__dirname, '../../public/images')
 
 const uploadSingle = multer({
   storage: multer.diskStorage({
@@ -30,7 +30,7 @@ module.exports = router => {
       } else {
         const { filename } = req.file
         const url = `http://${SERVER.host}:${SERVER.port}/images/${filename}`
-        res.send({ status: 200, data: { name: filename, url } })
+        res.send({ status: 200, data: { filename, url } })
       }
     })
   })
