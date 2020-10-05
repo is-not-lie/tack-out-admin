@@ -2,7 +2,7 @@
 const mongoose = require('mongoose')
 const { SERVER } = require('../config')
 
-const iconDefault = `${SERVER.host}:${SERVER.port}/images/default_icon.png`
+const iconDefault = `http://${SERVER.host}:${SERVER.port}/images/default_icon.png`
 const cateSchema = new mongoose.Schema({
   cateName: { type: String, required: true, unique: true },
   subList: { type: Array, default: [] },

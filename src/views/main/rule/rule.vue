@@ -115,7 +115,7 @@ export default class Rule extends Vue {
   }
 
   // 修改用户权限
-  editUser (user: any) {
+  editUser (user: { _id: string; authority: number }) {
     this.userId = user._id
     this.authority = user.authority
     this.visible = true
