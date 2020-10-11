@@ -1,13 +1,10 @@
 const path = require('path')
+
 module.exports = {
-  outputDir: 'dist',
-  lintOnSave: true,
-  productionSourceMap: process.env.NODE_ENV === 'production',
   configureWebpack: {
     resolve: {
       alias: {
-        'sass': path.resolve(__dirname, 'src/assets/sass'),
-        'img': path.resolve(__dirname, 'src/assets/images'),
+        img: path.resolve(__dirname, 'src/assets/images')
       }
     }
   },
@@ -24,10 +21,10 @@ module.exports = {
           modifyVars: {
             'primary-color': '#91d5ff',
             'link-color': '#91d5ff',
-            'border-radius-base': '4px',
+            'border-radius-base': '4px'
           },
-          javascriptEnabled: true,
-        },
+          javascriptEnabled: true
+        }
       }
     }
   },

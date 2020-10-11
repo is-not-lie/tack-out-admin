@@ -14,14 +14,10 @@ const TOKEN_CHECK = ['/images', '/login', '/', '/api/captcha', '/api/global_imgs
 const TOKEN_KEY = 'take_out_shop'
 // token过期事件
 const TOKEN_TIME = '30 days'
-// 一次性svg验证码配置
-const svgConfig = {
-  ignoreChars: '0o1i',
-  noise: 1,
-  background: '#FFD161',
-  width: 100,
-  height: 40,
-  fontSize: 40
-}
 
-module.exports = { DB, SERVER, TOKEN_CHECK, TOKEN_KEY, TOKEN_TIME, svgConfig }
+// 腾讯 api 的 key
+const txKey = 'JK2BZ-USG3W-UFFRI-RL4UD-FFHQ2-ZNBBP'
+// ip 定位 url
+const ipUrl = 'https://apis.map.qq.com/ws/location/v1/ip'
+
+module.exports = { DB, SERVER, TOKEN_CHECK, TOKEN_KEY, TOKEN_TIME, txKey, ipUrl }

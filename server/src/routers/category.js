@@ -1,62 +1,35 @@
 const cateModel = require('../models/category')
 const { v4: uuidv4 } = require('uuid')
 module.exports = router => {
-  // 主分类路由
-  router.get('/api/cates', async (req, res) => {
-    try {
-      const cates = await cateModel.find({})
-      if (cates.length) res.send({ status: 200, data: cates })
-      else res.send({ status: 404, msg: '暂无分类列表' })
-    } catch (err) {
-      console.log(`查询分类列表异常,错误信息${err}`)
-    }
+  // 获取分类列表理由
+  router.get('/api/cate/list', async (req, res) => {
+    try { res.send({ status: 200, data: await cateModel.getCates() }) }
+    catch (msg) { res.send({ status: 0, msg }) }
   })
+
+  // 添加分类路由与更新分类路由 (功能差不多,合一起算了)
   router.post('/api/cate/add', async (req, res) => {
-    const { cateName, icon } = req.body
+    const { cateName, cateId } = req.body
+    if (!cateName) return res.send({ status: 0, msg: '请输入分类名称' })
     try {
-      const cate = await cateModel.findOne({ cateName })
-      if (cate) res.send({ status: 0, msg: '该分类已存在' })
-      else res.send({ status: 200, data: await cateModel.create({ cateName, icon }) })
-    } catch (err) {
-      console.error(`添加商品分类异常,错误信息${err}`)
-      res.send({ status: 0, msg: '添加分类失败' })
-    }
-  })
-  router.post('/api/cate/edit', async (req, res) => {
-    const { _id, cateName, icon } = req.body
-    try {
-      const cate = await cateModel.findById(_id)
-      if (!cate) res.send({ status: 404, msg: '该分类不存在' })
-      else {
-        const result = await cateModel.findOne({ $and: [{ cateName }, { _id: { $ne: _id } }] })
-        if (result) res.send({ status: 0, msg: '该分类名称已存在' })
-        else {
-          cate._doc.cateName = cateName
-          cate._doc.icon = icon || cate._doc.icon
-          await cateModel.findByIdAndUpdate(_id, cate, { useFindAndModify: false })
-          res.send({ status: 200, data: cate })
-        }
+      if (!cateId) {
+        await cateModel.findCateName(cateName)
+        res.send({ status: 200, data: await cateModel.addCate(req.body) })
+      } else {
+        res.send({ status: 200, data: await cateModel.updateCate(req.body) })
       }
-    } catch (err) {
-      console.error(`更改分类信息失败,错误信息${err}`)
-      res.send({ status: 0, msg: '分类编辑失败' })
-    }
+    } catch (msg) { res.send({ status: 0, msg }) }
   })
+
+  // 删除分类路由
   router.post('/api/cate/del', async (req, res) => {
-    const { _id } = req.body
+    const { cateId } = req.body
     try {
-      const cate = await cateModel.findById(_id)
-      if (!cate) res.send({ status: 404, msg: '该分类不存在' })
-      else if (cate._doc.subList.length) res.send({ status: 0, msg: '请先删除该分类下的子分类' })
-      else {
-        await cateModel.deleteOne({ _id })
-        res.send({ status: 200 })
-      }
-    } catch (err) {
-      console.error(`删除分类异常,错误信息${err}`)
-      res.send({ status: 0, msg: '删除分类失败' })
-    }
+      await cateModel.delCate(cateId)
+      res.send({ status: 200 })
+    } catch (msg) { res.send({ status: 0, msg }) }
   })
+
   // 子分类路由
   router.get('/api/cate/sub/list', async (req, res) => {
     const { _id } = req.query

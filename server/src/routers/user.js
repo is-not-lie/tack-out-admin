@@ -1,134 +1,150 @@
 const md5 = require('md5')
-const jwt = require('jsonwebtoken')
 const dayjs = require('dayjs')
-const svgCaptcha = require('svg-captcha')
 const sendCode = require('../utils/sendSms.js')
+const { createUser } = require('../utils/create')
+const { userMap } = require('../utils/map')
+const getSvg = require('../utils/svg')
 const userModel = require('../models/user')
-const orderModel = require('../models/order')
-const { TOKEN_KEY, TOKEN_TIME, svgConfig, SERVER } = require('../config')
-const pageFile = require('../utils/pageFile')
-const avatar_url = `http://${SERVER.host}:${SERVER.port}/images/default.png`
 
-const createUser = (user) => {
-  return {
-    phone: user.phone,
-    userName: user.userName || user.phone,
-    password: user.password ? md5(user.password) : '',
-    shipping_address: user.shipping_address || [],
-    avatar_url: user.avatar_url || avatar_url,
-    signinTime: dayjs().format('YYYY-MM-DD')
+let svgText = '' // 保存svg验证码
+let phoneCode = '' // 保存手机验证码
+let userPhone = '' // 保存发送手机验证码的手机号
+
+// 获取用户 ip
+const getIp = (req) => {
+  let ip = ''
+  const defalutIp = '119.120.228.52'
+  if (process.env.NODE_ENV == 'development') return defalutIp
+  try {
+    ip = req.headers['x-forwarded-for'] ||
+         req.connection.remoteAddress ||
+         req.socket.remoteAddress ||
+         req.connection.socket.remoteAddress
+    const ipArr = ip.split(':')
+    ip = ipArr[ipArr.length - 1] || defaultIp
+  } catch (err) {
+    ip = defaultIp
+  }
+  return ip
+}
+
+// 处理密码登录函数
+const pwdLogin = async (req, res) => {
+  const { phone, password, captcha } = req.body
+
+  if (captcha.toLowerCase() !== svgText) return res.send({ status: 0, msg: '验证码错误' })
+  try {
+    const result = await userModel.findOne({ phone, password: md5(password) }, { __v: 0, _id: 0, password: 0 })
+    if (!result) res.send({ status: 404, msg: '手机号或密码不正确' })
+    else {
+      const user = await userMap(getIp(req), { ...result._doc })
+      res.send({ status: 200, data: user })
+    }
+  } catch (err) {
+    console.error(`用户登录异常,错误信息:${err}`)
+    res.send({ status: 500, msg: '登录失败' })
+  }
+}
+
+// 处理用户注册函数
+const userSignin = async (req, res) => {
+  const user = createUser(req.body)
+  try {
+    await userModel.create(user)
+    res.send({ status: 200, data: await userMap(getIp(req), user) })
+  } catch (err) {
+    console.error(`用户登录异常,错误信息:${err}`)
+    res.send({ status: 500, msg: '登录失败' })
   }
 }
 
 module.exports = router => {
-  router.post('/api/user/singin', async (req, res) => {
-    const { phone } = req.body
-    if (!phone) return res.send({ status: 0, msg: '手机号是必须的' })
+  // 登录路由
+  router.post('/api/login', async (req, res) => {
+    const { phone, code, password } = req.body
+    if (!/^1[34578]\d{9}/g.test(phone)) return res.send({ status: 0, msg: '手机号码格式错误' })
+    if (password) return pwdLogin(req, res)
+    // 校验验证码和手机号
+    if (code !== phoneCode) return res.send({ status: 0, msg: '验证码错误' })
+    if (phone !== userPhone) return res.send({ status: 0, msg: '两次的手机号码不一致' })
+
     try {
       const user = await userModel.findOne({ phone })
-      if (user) res.send({ status: 0, msg: '该手机号码已被注册' })
-      else {
-        const newUser = createUser(req.body)
-        const result = await userModel.create(newUser)
-        // 用户注册成功, 初始化用户订单表
-        const { _id } = result._doc
-        await orderModel.create({ userId: _id })
-        result._doc.token = jwt.sign({ id: _id }, TOKEN_KEY, { expiresIn: TOKEN_TIME })
-        res.send({ status: 200, data: result })
-      }
+      // 若用户未注册则注册
+      if (!user) userSignin(req, res)
+      else res.send({ status: 200, data: await userMap(getIp(req), { ...user._doc }) })
     } catch (err) {
-      console.error(`用户注册异常,错误信息${err}`)
-      res.send({ status: 0, msg: '注册失败' })
+      console.error(`用户登录异常,错误信息:${err}`)
+      res.send({ status: 500, msg: '登录失败' })
     }
   })
-  router.post('/api/user/login', async (req, res) => {
-    const { phone, password } = req.body
-    try {
-      const user = password
-        ? await userModel.findOne({ phone, password: md5(password) }, { password: 0, _v: 0 })
-        : await userModel.findOne({ phone }, { password: 0, _v: 0 })
-      if (!user) return res.send({ status: 0, msg: '该用户不存在或密码不正确' })
-      user._doc.token = jwt.sign({ id: user._id }, TOKEN_KEY, { expiresIn: TOKEN_TIME })
-      res.send({ status: 200, data: user })
-    } catch (err) {
-      console.error(`查询用户信息异常,错误信息:${err}`)
-      res.send({ status: 0, msg: '当前网络繁忙,请稍后重新尝试' })
-    }
-  })
+  // 更新用户信息路由
   router.post('/api/user/edit', async (req, res) => {
-    const { phone, _id, password } = req.body
-    if (!phone) return res.send({ status: 0, msg: '手机号是必须的' })
-    if (password) req.body.password = md5(password)
+    const { userId } = req.body
     try {
-      const user = await userModel.findOne({ $and: [{ phone }, { _id: { $ne: _id } }] })
-      if (user) res.send({ status: 0, msg: '该手机号已被注册' })
-      else {
-        await userModel.findOneAndUpdate({ _id }, { $set: { ...req.body } }, { useFindAndModify: false })
-        res.send({ status: 200 })
-      }
-    } catch (err) {
-      console.error(`编辑用户信息异常,错误信息${err}`)
-      res.send({ status: 0, msg: '编辑失败' })
-    }
+      const user = await userModel.searchId(userId)
+      Object.keys(req.body).forEach(key => {
+        if (key === 'userId') return
+        if (key === 'createTime') return
+        if (key === 'token') return
+        if (key === 'editTime') {
+          user._doc[key] = dayjs().format('YYYY-MM-DD HH:mm:ss')
+        } else {
+          user._doc[key] = req.body[key]
+        }
+      })
+      await userModel.update(userId, user)
+      res.send({ status: 200, data: user })
+    } catch (err) { res.send({ status: 0, msg: err }) }
+  })
+  // 根据手机号码搜索用户
+  router.get('/api/user/search', async (req, res) => {
+    const { phone } = req.query
+    try { res.send({ status: 200, data: await userModel.search(phone) }) }
+    catch (err) { res.send({ status: 0, msg: err }) }
+  })
+  // 获取用户列表
+  router.get('/api/user/list', async (req, res) => {
+    const { pageNum, pageSize } = req.query
+    try { res.send({ status: 200, data: await userModel.userList(pageNum, pageSize) }) }
+    catch (err) { res.send({ status: 0, msg: err }) }
+  })
+  // 删除用户路由
+  router.post('/api/user/del', async (req, res) => {
+    const { userId } = req.body
+    try {
+      await userModel.delUser(userId)
+      res.send({ status: 200 })
+    } catch (err) { res.send({ status: 0, msg: err }) }
   })
   // svg验证码路由
   router.get('/api/captcha', (req, res) => {
-    res.send({ status: 200, data: svgCaptcha.create(svgConfig) })
+    const { data, text } = getSvg()
+    // 保存验证码
+    svgText = text.toLowerCase()
+    res.send({ status: 200, data })
   })
   // 短信验证码路由
   router.get('/api/sendcode', async (req, res) => {
     const { phone } = req.query
-    console.log(phone)
+    if (!/^1[34578]\d{9}$/g.test(phone)) return res.send({ status: 0, msg: '手机号码格式错误' })
     try {
       const { code, status } = await sendCode({ phone })
       if (status === 200) {
         console.log(`已向${phone}发送验证码短信,验证码为: ${code}`)
-        res.send({ status, data: code })
+        // 保存验证码和接收验证码的手机号
+        phoneCode = code
+        userPhone = phone
+        // 设置验证码过期时间..session存储不熟悉, 只能这样了
+        setTimeout(() => {
+          phoneCode = ''
+          userPhone = ''
+        }, 180000)
+        res.send({ status })
       }
     } catch (err) {
       console.error(`向用户发送手机验证码异常, 错误信息:${err}`)
       res.send({ status: 0, msg: '当前网络繁忙,请稍后重新尝试' })
-    }
-  })
-  // 请求用户列表路由
-  router.get('/api/user/list', async (req, res) => {
-    const { pageNum, pageSize } = req.query
-    try {
-      const userList = await userModel.find({ authority: { $ne: 3 } }, { password: 0, __v: 0 })
-      if (userList.length) res.send({ status: 200, data: pageFile(userList, pageNum, pageSize) })
-      else res.send({ status: 404, msg: '当前暂无用户' })
-    } catch (err) {
-      console.error(`查询用户列表异常,错误信息${err}`)
-      res.send({ status: 0, msg: '获取用户列表失败' })
-    }
-  })
-  // 根据手机号搜索用户列表
-  router.get('/api/user/seach', async (req, res) => {
-    const { phone } = req.query
-    if (!phone) return res.send({ status: 0, msg: '请输入手机号' })
-
-    try {
-      const user = await userModel.findOne({ phone, authority: { $ne: 3 } }, { password: 0, __v: 0 })
-      if (!user) res.send({ status: 404, msg: '没有找到该用户' })
-      else res.send({ status: 200, data: user })
-    } catch (err) {
-      console.error(`搜索用户异常,错误信息${err}`)
-      res.send({ status: 0, msg: '没有找到用户信息' })
-    }
-  })
-  // 更新用户权限
-  router.post('/api/user/rule/edit', async (req, res) => {
-    const { userId, authority } = req.body
-    try {
-      const user = await userModel.findById(userId)
-      if (!user) res.send({ status: 404, msg: '该用户不存在' })
-      else {
-        await userModel.findByIdAndUpdate(userId, { $set: { authority } }, { useFindAndModify: false })
-        res.send({ status: 200 })
-      }
-    } catch (err) {
-      console.error(`角色权限更改异常,错误信息${err}`)
-      res.send({ status: 0, msg: '权限编辑失败' })
     }
   })
 }

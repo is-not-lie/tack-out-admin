@@ -1,0 +1,7 @@
+export { default as MyMenu } from './Menu'
+export { default as GlobalHeader } from './GlobalHeader'
+export { default as MyTag } from './Tag'
+export { default as MyDropdown } from './Dropdown'
+export { default as MySearch } from './Search'
+export { default as AddCard } from './Add'
+export { default as MyUpload } from './Upload'
