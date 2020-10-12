@@ -1,6 +1,6 @@
 // 商家模块
 const mongoose = require('mongoose')
-const { createMerchant } = require('@/utils/create')
+const { createMerchant } = require('../utils/create')
 
 const merchantSchema = new mongoose.Schema({
   userId: { type: String, required: true, unique: true }, // 申请人 id
@@ -15,7 +15,8 @@ const merchantSchema = new mongoose.Schema({
   auditor: String, // 审核人名称
   applyTime: String, // 申请时间
   passTime: String, // 审核通过时间
-  status: Number // 审核状态
+  status: Number, // 审核状态
+  desc: String // 审核驳回的说明
 })
 
 // 新增商家
@@ -91,6 +92,26 @@ merchantSchema.statics.searchPhone = function (phone) {
       .then(resolve)
       .catch(err => {
         console.error(`根据手机号码搜索商家异常,错误信息${err}`)
+        reject('服务器繁忙,暂时无法提供搜索服务...')
+      })
+  })
+}
+
+// 根据审核状态搜索商家
+merchantSchema.statics.searchStatus = function (params) {
+  return new Promise((resolve, reject) => {
+    const { status, lte, not } = params
+    const result = lte === false
+      ? this.find({ status }, { __v: 0, _id: 0 })
+      : (
+        not === false
+          ? this.find({ status: { $lte: status } }, { __v: 0, _id: 0 })
+          : this.find({ $and: [{ status: { $lte: status } }, { status: { $ne: not } }] })
+      )
+    result
+      .then(resolve)
+      .catch(err => {
+        console.error(`根据审核状态搜索商家异常,错误信息${err}`)
         reject('服务器繁忙,暂时无法提供搜索服务...')
       })
   })

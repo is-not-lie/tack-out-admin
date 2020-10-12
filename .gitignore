@@ -1,8 +1,8 @@
 .DS_Store
 node_modules
 /dist
-
-
+# 不提交服务器里面的图片...
+server/public
 # local env files
 .env.local
 .env.*.local

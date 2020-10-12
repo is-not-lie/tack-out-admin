@@ -26,10 +26,14 @@ export const http = {
   reqDelCate: (cateId) => axios.post('/cate/del', { cateId }),
   // 请求商家注册
   reqShopSignin: (params) => axios.post('/shop/signin', params),
+  // 查询用户是否已提交商家注册
+  verifyIsRegistered: (userId) => axios.get('/shop/verify', { params: { userId } }),
   // 请求商家列表
-  reqMerchantList: () => axios.get('/shop/list'),
+  reqMerchantList: (pageNum) => axios.get('/shop/list', { params: { pageNum, pageSize: PAGESIZE } }),
   // 请求更改商家审核状态
   reqSetAudit: (params) => axios.post('/shop/audit', params),
   // 搜索商家
-  reqSearchMerchant: (params) => axios.get('/shop/search', { params })
+  reqSearchMerchant: (params) => axios.get('/shop/search', { params }),
+  // 根据状态过滤商家列表
+  reqSearchStatus: (params) => axios.get('/shop/search/status', { params: { ...params, pageSize: PAGESIZE } })
 }

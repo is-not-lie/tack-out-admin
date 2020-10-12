@@ -33,6 +33,7 @@ export default {
           .catch(reject)
       })
     },
+
     // 退出登录
     logout ({ commit }) {
       return new Promise((resolve, reject) => {
@@ -41,6 +42,7 @@ export default {
         resolve()
       })
     },
+
     // 获取用户权限菜单
     getUserRoutes ({ state, commit }) {
       return new Promise((resolve, reject) => {
@@ -52,6 +54,7 @@ export default {
         } else reject(new Error('您还未登录'))
       })
     },
+
     // 获取用户列表
     getUserList ({ state, commit }, pageNum) {
       return new Promise((resolve, reject) => {
@@ -70,6 +73,7 @@ export default {
           .catch(reject)
       })
     },
+
     // 修改用户信息
     editUser ({ state, commit }, params) {
       return new Promise((resolve, reject) => {
@@ -82,6 +86,7 @@ export default {
           .catch(reject)
       })
     },
+
     // 删除用户
     delUser ({ state, commit }, userId) {
       return new Promise((resolve, reject) => {
@@ -94,6 +99,7 @@ export default {
           .catch(reject)
       })
     },
+
     // 搜索用户
     searchUser ({ state }, phone) {
       return new Promise((resolve, reject) => {
@@ -108,6 +114,18 @@ export default {
             })
             .catch(reject)
         }
+      })
+    },
+
+    // 查询用户是否已申请注册商家
+    isRegistered ({ commit }, userId) {
+      return new Promise((resolve, reject) => {
+        http.verifyIsRegistered(userId)
+          .then((result) => {
+            if (result === true) resolve()
+            else reject(new Error())
+          })
+          .catch(reject)
       })
     }
   }

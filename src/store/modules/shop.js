@@ -1,17 +1,5 @@
 import { http } from '@/api'
 
-const searchName = (brandName, list) => new Promise((resolve, reject) => {
-  const index = list.findIndex(item => item.brandName === brandName)
-  if (index !== -1) resolve(index)
-  else reject(new Error())
-})
-
-const searchPhone = (phone, list) => new Promise((resolve, reject) => {
-  const index = list.findIndex(item => item.phone === phone)
-  if (index !== -1) resolve(index)
-  else reject(new Error())
-})
-
 export default {
   state: {
     merchantList: []
@@ -35,13 +23,14 @@ export default {
     },
 
     // 请求商家列表
-    getMerchantList ({ commit }) {
+    getMerchantList ({ commit }, pageNum) {
       return new Promise((resolve, reject) => {
-        http.reqMerchantList()
+        http.reqMerchantList(pageNum)
           .then(merchantList => {
-            if (merchantList && merchantList.length > 0) {
-              commit('setMerchantList', merchantList)
-              resolve(merchantList)
+            if (merchantList) {
+              const { total, list } = merchantList
+              commit('setMerchantList', list)
+              resolve(total)
             } else reject(new Error())
           })
           .catch(reject)
@@ -70,26 +59,44 @@ export default {
       const { searchType, keyWord } = params
       const { merchantList } = state
       return new Promise((resolve, reject) => {
-        const result = searchType === 0 ? searchName(keyWord, merchantList) : searchPhone(keyWord, merchantList)
-        result
-          .then(index => {
-            const merchant = merchantList[index]
-            merchantList.splice(index, 1)
-            merchantList.unshift(merchant)
-            commit('setMerchantList', merchantList)
-            resolve()
+        const index = searchType === 0
+          ? merchantList.findIndex(item => item.brandName === keyWord)
+          : merchantList.findIndex(item => item.phone === keyWord)
+        if (index !== -1) {
+          const merchant = merchantList[index]
+          merchantList.splice(index, 1)
+          merchantList.unshift(merchant)
+          commit('setMerchantList', merchantList)
+          resolve()
+        } else {
+          http.reqSearchMerchant(params)
+            .then(merchant => {
+              if (merchant) {
+                merchantList.unshift(merchant)
+                commit('setMerchantList', merchantList)
+                resolve()
+              } else reject(new Error())
+            })
+            .catch(reject)
+        }
+      })
+    },
+
+    // 根据审核状态请求商家列表
+    searchStatus ({ commit }, statusList) {
+      return new Promise((resolve, reject) => {
+        const params = statusList.length === 1
+          ? { status: statusList[0], pageNum: 1 }
+          : { status: statusList, pageNum: 1 }
+        http.reqSearchStatus(params)
+          .then(merchantList => {
+            if (merchantList) {
+              const { total, list } = merchantList
+              commit('setMerchantList', list)
+              resolve(total)
+            } else reject(new Error())
           })
-          .catch(() => {
-            http.reqSearchMerchant(params)
-              .then(merchant => {
-                if (merchant) {
-                  merchantList.unshift(merchant)
-                  commit('setMerchantList', merchantList)
-                  resolve()
-                } else reject(new Error())
-              })
-              .catch(reject)
-          })
+          .catch(reject)
       })
     }
   }

@@ -1,4 +1,4 @@
-<script lang='jsx'>
+<script>
 import { mapActions, mapGetters } from 'vuex'
 import { AddCard, MyUpload, MySearch, MyTag } from '@/components'
 import { loadingState, formState } from '@/data/commonState'

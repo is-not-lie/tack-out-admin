@@ -1,4 +1,4 @@
-<script lang="jsx">
+<script>
 import { mapActions } from 'vuex'
 import { phoneVerify, pwdVerify, getSvg } from './common'
 

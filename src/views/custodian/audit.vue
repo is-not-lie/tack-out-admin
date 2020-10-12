@@ -1,4 +1,4 @@
-<script lang='jsx'>
+<script>
 import { mapGetters, mapActions } from 'vuex'
 import { MyTag } from '@/components'
 import { loadingState, paginationState, formState } from '@/data/commonState'
@@ -11,27 +11,39 @@ const state = {
   ...paginationState,
   ...formState,
   searchType: 0,
-  keyword: '',
+  auditResult: 0,
+  keyWord: '',
   previewImage: '',
   previewVisible: false,
   visible: false,
   infoVisible: false,
   checkAll: true,
-  checkedList: [],
-  indeterminate: true,
+  checkedList: plainOptions,
+  indeterminate: false,
   currentMerchant: {}
 }
 
 const computed = { ...mapGetters(['merchantList', 'user']) }
 
 const methods = {
-  ...mapActions(['getMerchantList', 'setAudit', 'searchMerchantList']),
+  ...mapActions(['getMerchantList', 'setAudit', 'searchMerchantList', 'searchStatus']),
+
+  initMerchantList (pageNum = this.pageNum) {
+    this.getMerchantList(this.pageNum)
+      .then((total) => {
+        setTimeout(() => {
+          this.total = total
+          this.tableLoading = false
+        }, 400)
+      })
+      .catch(() => { })
+  },
 
   // 分页器改变回调
   paginationChange (pageNum) {
     const { current } = pageNum
     this.pageNum = current
-    // this.initMerchantList(current)
+    this.initMerchantList(current)
   },
 
   // 显示商家详情回调
@@ -80,19 +92,41 @@ const methods = {
   },
 
   // 搜索框回调
-  handleSearch () {},
+  handleSearch () {
+    const { keyWord, searchType } = this
+    this.searchMerchantList({ keyWord, searchType })
+      .then(() => { })
+      .catch(() => { })
+  },
 
   // 选项框改变回调
   selectChange (value) {
     this.searchType = value
-    this.keyword = ''
+    this.keyWord = ''
   },
 
   // 多选框改变回调
   onChange (checkedList) {
-    console.log(checkedList)
     this.indeterminate = !!checkedList.length && checkedList.length < plainOptions.length
     this.checkAll = checkedList.length === plainOptions.length
+
+    if (checkedList.length > 0) {
+      this.pageNum = 1
+      this.tableLoading = true
+      const statusList = []
+      checkedList.forEach(status => {
+        const index = plainOptions.findIndex(item => item === status)
+        if (index >= 0) statusList.push(index)
+      })
+      this.searchStatus(statusList)
+        .then((total) => {
+          setTimeout(() => {
+            this.total = total
+            this.tableLoading = false
+          }, 400)
+        })
+        .catch(() => { this.tableLoading = false })
+    }
   },
 
   // 全选改变回调
@@ -102,6 +136,18 @@ const methods = {
       indeterminate: false,
       checkAll: e.target.checked
     })
+    if (this.checkAll) {
+      this.pageNum = 1
+      this.tableLoading = true
+      this.initMerchantList()
+    } else {
+
+    }
+  },
+
+  // 审核下拉框改变回调
+  auditSelectChange (value) {
+    this.auditResult = value
   }
 }
 
@@ -137,7 +183,7 @@ export default {
           title: '审核状态',
           align: 'center',
           dataIndex: 'status',
-          customRender: (text) => <MyTag text={auditStatus[text]} color={auditStatusColor[text]}/>
+          customRender: (text) => <MyTag text={auditStatus[text]} color={auditStatusColor[text]} />
         },
         {
           title: '申请时间',
@@ -178,14 +224,10 @@ export default {
 
   methods,
 
-  created () {
-    this.getMerchantList()
-      .then(() => { this.tableLoading = false })
-      .catch(() => {})
-  },
+  created () { this.initMerchantList() },
 
   render () {
-    const { searchType, indeterminate, checkAll, searchLoading, wrapperCol, labelCol, previewImage, currentMerchant, confirmLoading, merchantList, columns, tableLoading, total, pageSize, pageNum } = this
+    const { auditResult, searchType, indeterminate, checkAll, searchLoading, wrapperCol, labelCol, previewImage, currentMerchant, confirmLoading, merchantList, columns, tableLoading, total, pageSize, pageNum } = this
     return (
       <a-card title="商家列表">
 
@@ -206,7 +248,7 @@ export default {
                 <a-input-search
                   max-length={20}
                   placeholder="请输入"
-                  v-model={this.keyword}
+                  v-model={this.keyWord}
                   loading={searchLoading}
                   onsearch={this.handleSearch}
                 >
@@ -341,7 +383,7 @@ export default {
               label="审核结果"
               hasFeedback
             >
-              <a-select v-decorator={['status', { initialValue: 0 }]}>
+              <a-select v-decorator={['status', { initialValue: 0 }]} onchange={this.auditSelectChange}>
                 {
                   auditStatus.map((status, i) => (
                     <a-select-option value={i}>{status}</a-select-option>
@@ -349,6 +391,26 @@ export default {
                 }
               </a-select>
             </a-form-item>
+
+            {
+              auditResult === 2
+                ? (
+                  <a-form-item
+                    labelCol={labelCol}
+                    wrapperCol={wrapperCol}
+                    label="驳回说明"
+                    hasFeedback
+                  >
+                    <a-textarea
+                      rows={5}
+                      placeholder="..."
+                      id="desc"
+                      v-decorator={['desc']}
+                    />
+                  </a-form-item>
+                )
+                : ''
+            }
 
           </a-form>
 

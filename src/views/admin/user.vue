@@ -1,4 +1,4 @@
-<script lang="jsx">
+<script>
 import { mapActions } from 'vuex'
 import { MyTag, MySearch } from '@/components'
 import { userStatus, roleEnum } from '@/data/enum'
@@ -355,6 +355,7 @@ export default {
             <a-col><MyTag text={user.editTime} color="purple"/></a-col>
           </a-row>
         </a-modal>
+
       </a-card>
     )
   }

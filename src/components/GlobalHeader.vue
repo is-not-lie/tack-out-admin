@@ -1,4 +1,4 @@
-<script lang='jsx'>
+<script>
 import { mapGetters, mapActions } from 'vuex'
 
 const menuTitle = [

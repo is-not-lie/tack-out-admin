@@ -1,4 +1,4 @@
-<script lang='jsx'>
+<script>
 import { mapActions, mapGetters } from 'vuex'
 import { formState } from '@/data/commonState'
 import { MyUpload } from '@/components'
@@ -12,7 +12,7 @@ const state = {
 const computed = { ...mapGetters(['user']) }
 
 const methods = {
-  ...mapActions(['signin']),
+  ...mapActions(['signin', 'isRegistered']),
 
   next () {
     if (this.current === 1) {
@@ -66,6 +66,13 @@ export default {
   computed,
 
   methods,
+
+  created () {
+    const { userId } = this.user
+    this.isRegistered(userId)
+      .then(() => this.$router.replace({ name: 'signinSuccess' }))
+      .catch(() => {})
+  },
 
   render () {
     const { current, labelCol, wrapperCol } = this
