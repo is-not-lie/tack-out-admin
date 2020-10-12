@@ -64,6 +64,16 @@ module.exports = router => {
     } catch (msg) { res.send({ status: 0, msg }) }
   })
 
+  // 搜索商家路由
+  router.get('/shop/search', async (req, res) => {
+    const { keyWord, searchType } = req.query
+    try {
+      const merchant = searchType === 0
+        ? await merchantModel.searchName(keyWord)
+        : await merchantModel.searchPhone(keyWord)
+      res.send({ status: 200, data: merchant })
+    } catch (msg) { res.send({ status: 0, msg }) }
+  })
   // 根据 id 查找商家路由
   // router.get('/api/shop/id', async (req, res) => {
   //   const { merchantId } = req.query

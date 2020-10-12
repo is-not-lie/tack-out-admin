@@ -245,13 +245,13 @@ export default {
               <a-col><MyTag text={currentCate.cateName} color="blue" /></a-col>
             </a-row>
             <a-descriptions-item label="创建时间">
-              <MyTag text={currentCate.createTime} color="green"/>
+              {currentCate.createTime}
             </a-descriptions-item>
             <a-descriptions-item label="编辑时间">
-              <MyTag text={currentCate.editTime} color="volcano"/>
+              {currentCate.editTime}
             </a-descriptions-item>
             <a-descriptions-item label="创建人">
-              <MyTag text={currentCate.creator} color="gold"/>
+              <MyTag text={currentCate.creator} color="green"/>
             </a-descriptions-item>
             <a-descriptions-item label="编辑人">
               <MyTag text={currentCate.editor} color="purple"/>

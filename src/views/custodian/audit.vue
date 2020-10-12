@@ -4,33 +4,43 @@ import { MyTag } from '@/components'
 import { loadingState, paginationState, formState } from '@/data/commonState'
 import { auditStatus, auditStatusColor } from '@/data/enum'
 
+const plainOptions = ['等待审核', '审核通过', '审核驳回']
+
 const state = {
   ...loadingState,
   ...paginationState,
   ...formState,
+  searchType: 0,
+  keyword: '',
   previewImage: '',
   previewVisible: false,
   visible: false,
   infoVisible: false,
+  checkAll: true,
+  checkedList: [],
+  indeterminate: true,
   currentMerchant: {}
 }
 
 const computed = { ...mapGetters(['merchantList', 'user']) }
 
 const methods = {
-  ...mapActions(['getMerchantList', 'setAudit']),
+  ...mapActions(['getMerchantList', 'setAudit', 'searchMerchantList']),
 
+  // 分页器改变回调
   paginationChange (pageNum) {
     const { current } = pageNum
     this.pageNum = current
     // this.initMerchantList(current)
   },
 
+  // 显示商家详情回调
   handleInfo (row) {
     this.currentMerchant = row
     this.infoVisible = true
   },
 
+  // 编辑审核状态回调
   handleAudit (row) {
     const { merchantId, brandName, status } = row
     this.form.setFieldsValue({ merchantId, brandName, status })
@@ -38,6 +48,7 @@ const methods = {
     this.visible = true
   },
 
+  // 审核确认提交回调
   handleOk (e) {
     e.preventDefault()
 
@@ -66,6 +77,31 @@ const methods = {
   handlePreview (previewImage) {
     this.previewImage = previewImage
     this.previewVisible = true
+  },
+
+  // 搜索框回调
+  handleSearch () {},
+
+  // 选项框改变回调
+  selectChange (value) {
+    this.searchType = value
+    this.keyword = ''
+  },
+
+  // 多选框改变回调
+  onChange (checkedList) {
+    console.log(checkedList)
+    this.indeterminate = !!checkedList.length && checkedList.length < plainOptions.length
+    this.checkAll = checkedList.length === plainOptions.length
+  },
+
+  // 全选改变回调
+  onCheckAllChange (e) {
+    Object.assign(this, {
+      checkedList: e.target.checked ? plainOptions : [],
+      indeterminate: false,
+      checkAll: e.target.checked
+    })
   }
 }
 
@@ -149,9 +185,54 @@ export default {
   },
 
   render () {
-    const { wrapperCol, labelCol, previewImage, currentMerchant, confirmLoading, merchantList, columns, tableLoading, total, pageSize, pageNum } = this
+    const { searchType, indeterminate, checkAll, searchLoading, wrapperCol, labelCol, previewImage, currentMerchant, confirmLoading, merchantList, columns, tableLoading, total, pageSize, pageNum } = this
     return (
       <a-card title="商家列表">
+
+        {/* 头部搜索部位 */}
+        <a-row type="flex" align="middle" style={{ paddingBottom: '20px' }}>
+
+          <a-col span={16}>
+            <a-row type="flex">
+
+              <a-col span={5} offset={3}>
+                <a-select default-value={searchType} onchange={this.selectChange}>
+                  <a-select-option value={0}>按品牌名称搜索</a-select-option>
+                  <a-select-option value={1}>按手机号码搜索</a-select-option>
+                </a-select>
+              </a-col>
+
+              <a-col span={10}>
+                <a-input-search
+                  max-length={20}
+                  placeholder="请输入"
+                  v-model={this.keyword}
+                  loading={searchLoading}
+                  onsearch={this.handleSearch}
+                >
+                  <a-button type="primary" icon="search" slot="enterButton">搜索</a-button>
+                </a-input-search>
+              </a-col>
+
+            </a-row>
+          </a-col>
+
+          <a-col span={8}>
+            <a-row gutter={[0, 10]}>
+
+              <a-col offset={5}>
+                <a-checkbox indeterminate={indeterminate} checked={checkAll} onchange={this.onCheckAllChange}>
+                  显示全部
+                </a-checkbox>
+              </a-col>
+
+              <a-col>
+                <a-checkbox-group v-model={this.checkedList} options={plainOptions} onchange={this.onChange} />
+              </a-col>
+
+            </a-row>
+          </a-col>
+        </a-row>
 
         {/* 展示表格 */}
         <a-table
@@ -183,22 +264,22 @@ export default {
               <MyTag text={currentMerchant.brandName} color="blue" />
             </a-descriptions-item>
             <a-descriptions-item label="申请时间">
-              <MyTag text={currentMerchant.applyTime} color="green"/>
+              {currentMerchant.applyTime}
             </a-descriptions-item>
             <a-descriptions-item label="审核时间">
-              <MyTag text={currentMerchant.passTime} color="volcano"/>
+              {currentMerchant.passTime}
             </a-descriptions-item>
             <a-descriptions-item label="申请人">
-              <MyTag text={currentMerchant.proposer} color="gold"/>
+              {currentMerchant.proposer}
             </a-descriptions-item>
             <a-descriptions-item label="审核人">
-              <MyTag text={currentMerchant.auditor} color="purple"/>
+              {currentMerchant.auditor}
             </a-descriptions-item>
             <a-descriptions-item label="联系号码">
-              <MyTag text={currentMerchant.phone} color="purple"/>
+              {currentMerchant.phone}
             </a-descriptions-item>
             <a-descriptions-item label="联系邮箱">
-              <MyTag text={currentMerchant.email} color="purple"/>
+              {currentMerchant.email}
             </a-descriptions-item>
             <a-descriptions-item label="营业执照">
               <a-avatar src={currentMerchant.license} size="large" shape="square" />
@@ -280,5 +361,4 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-
 </style>

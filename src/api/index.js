@@ -30,6 +30,6 @@ export const http = {
   reqMerchantList: () => axios.get('/shop/list'),
   // 请求更改商家审核状态
   reqSetAudit: (params) => axios.post('/shop/audit', params),
-  // 根据 id 获取商家信息
-  reqMerchant: (merchantId) => axios.get('/shop/id', { params: { merchantId } })
+  // 搜索商家
+  reqSearchMerchant: (params) => axios.get('/shop/search', { params })
 }

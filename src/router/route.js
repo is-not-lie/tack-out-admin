@@ -97,7 +97,7 @@ const custodianRouter = [
     path: '/audit',
     name: 'audit',
     component: () => import('@/views/custodian/audit.vue'),
-    meta: { title: '商家列表', icon: 'shop' }
+    meta: { title: '商家审核', icon: 'shop' }
   },
   {
     path: '/category',

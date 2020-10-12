@@ -16,7 +16,7 @@ const createUser = (user) => ({
   avatar: user.avatar || defaultAvatar, // 头像
   userId: v1().replace(/-/g, ''), // id
   rank: 0, // 权限级别
-  shippingAddress: [], //初始化收货地址
+  shippingAddress: [], // 初始化收货地址
   createTime: dayjs().format('YYYY-MM-DD HH:mm:ss'), // 创建时间
   editTime: dayjs().format('YYYY-MM-DD HH:mm:ss'), // 信息更改时间
   status: 1 // 用户状态, 1为正常启用 2为禁用
