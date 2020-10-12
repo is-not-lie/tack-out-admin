@@ -62,6 +62,7 @@ const methods = {
       })
   },
 
+  // 查看大图片回调
   handlePreview (previewImage) {
     this.previewImage = previewImage
     this.previewVisible = true
