@@ -4,11 +4,15 @@ import { MySearch, MyUpload } from '@/components'
 import { loadingState, formState } from '@/data/commonState'
 import { PAGESIZE } from '@/config'
 
+// 隐藏表单项的 id (用于数据回显时注册)
+const hiedFormItemId = ['discount', 'status', 'activity']
+
 const state = {
   ...loadingState,
   ...formState,
+  dis: 0,
+  price: 0,
   currentGoods: {},
-  showInfoModal: false,
   listLoading: true,
   visible: false,
   cardTitle: 'add',
@@ -26,6 +30,12 @@ const computed = {
     return this.textTrigger
       ? '请上传小尺寸的商品图片,该图片将用于首页展示'
       : '请上传商品图片'
+  },
+
+  // 计算折扣价
+  discountPrice () {
+    const { price, dis } = this
+    return Math.ceil(price * (dis / 10)) * 100 / 100
   }
 }
 
@@ -40,6 +50,7 @@ const methods = {
     result
       .then(() => {
         setTimeout(() => {
+          this.handleCancel()
           this.listLoading = this.confirmLoading = this.visible = false
           this.$message.success(this.cardTitle === 'add' ? '新增商品成功' : '编辑成功')
         }, 400)
@@ -70,8 +81,14 @@ const methods = {
   handleEdit (goods) {
     // 更改模态框标题
     this.cardTitle = 'edit'
+    // 注册表单项
+    hiedFormItemId.forEach(key => this.form.getFieldDecorator(key))
+    // 取出需要回显的数据, 多余的不要
+    const { imgUrlBig, imgUrlSmall, originalPrice, goodsName, discount, count, status, activity, desc, specification } = goods
+    this.currentGoods = goods
+    this.price = originalPrice
+    this.dis = discount
     // 处理图片回显
-    const { imgUrlBig, imgUrlSmall, originalPice, goodsId, goodsName, discount, count, status, activity, desc, specification } = goods
     this.filenames = [imgUrlBig, imgUrlSmall]
     const big = {
       filename: imgUrlBig.split('/').reverse()[0],
@@ -81,16 +98,11 @@ const methods = {
       filename: imgUrlSmall.split('/').reverse()[0],
       url: imgUrlSmall
     }
+    // 注册一下表单项的 id
     this.$refs.upload.setFileList([big, small])
     // 处理表单数据回显
-    this.form.setFieldsValue({ originalPice, goodsId, goodsName, discount, count, status, activity, desc, specification })
+    this.form.setFieldsValue({ originalPrice, goodsName, discount, count, status, activity, desc, specification })
     this.visible = true
-  },
-
-  // 查看商品详情
-  handleInfo (goods) {
-    this.currentGoods = goods
-    this.showInfoModal = true
   },
 
   // 搜索回调
@@ -135,7 +147,8 @@ const methods = {
         const { merchantId } = this.user
         const goodsImg = filenames[0]
         const goodsImgSmall = filenames[1] || filenames[0]
-        const params = { merchantId, goodsImg, goodsImgSmall, ...values }
+        const { goodsId } = this.currentGoods
+        const params = { goodsId, merchantId, goodsImg, goodsImgSmall, ...values }
         this.handleDispath(params)
       }
     })
@@ -178,9 +191,6 @@ export default {
       .then((tables) => {
         setTimeout(() => {
           this.listLoading = false
-          // 注册一下表单项的 id
-          const keys = ['goodsId', 'discount', 'status', 'activity', 'specification']
-          keys.forEach(key => this.form.getFieldDecorator(key))
         }, 200)
       })
       .catch(() => { })
@@ -212,7 +222,7 @@ export default {
               <a-select-option value="monthlySales">销量排序</a-select-option>
               <a-select-option value="count">库存排序</a-select-option>
               <a-select-option value="status">状态排序</a-select-option>
-              <a-select-option value="originalPice">价格排序</a-select-option>
+              <a-select-option value="originalPrice">价格排序</a-select-option>
             </a-select>
           </a-col>
 
@@ -263,11 +273,6 @@ export default {
                     <a-icon type="rise" />
                     {item.monthlySales}
                   </a-space>
-                </a-tooltip>,
-
-                <a-tooltip placement="right" slot="actions">
-                  <span slot="title">查看详情</span>
-                  <a-icon type="ellipsis" onClick={() => this.handleInfo(item)} />
                 </a-tooltip>
 
               ]}
@@ -297,7 +302,7 @@ export default {
                   <a-space>
                     <a-badge status={item.discount === 10 ? 'success' : 'default'} text="商品价格:" />
                     <a-tag>
-                      ¥ {item.discount === 10 ? item.originalPice : <del>{item.originalPice}</del>}
+                      ¥ {item.discount === 10 ? item.originalPrice : <del>{item.originalPrice}</del>}
                     </a-tag>
                   </a-space>
                 </a-col>
@@ -315,7 +320,7 @@ export default {
                   <a-space>
                     <a-badge status="processing" text="折扣价:" />
                     <a-tag>
-                      ¥ {item.discount === 10 ? item.originalPice : Math.ceil((item.originalPice * (item.discount / 10)) * 100) / 100}
+                      ¥ {item.discount === 10 ? item.originalPrice : Math.ceil((item.originalPrice * (item.discount / 10)) * 100) / 100}
                     </a-tag>
                   </a-space>
                 </a-col>
@@ -407,36 +412,45 @@ export default {
               />
             </a-form-item>
 
-            {/* 价格 */}
-            <a-form-item
-              labelCol={labelCol}
-              wrapperCol={wrapperCol}
-              label="商品价格"
-              hasFeedback
-            >
-              <a-input-number
-                min={0}
-                step={0.1}
-                formatter={value => `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                v-decorator={['originalPice', { rules: [{ required: true, message: '请输入商品价格' }] }]}
-              />
-            </a-form-item>
+            <a-row type="flex" align="middle">
 
-            {/* 库存 */}
-            <a-form-item
-              labelCol={labelCol}
-              wrapperCol={wrapperCol}
-              hasFeedback
-              label="商品库存"
-            >
-              <a-input-number
-                min={0}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                v-decorator={['count']}
-              />
-            </a-form-item>
+              {/* 价格 */}
+              <a-col>
+                <a-form-item
+                  labelCol={{ span: 12, offset: 2 }}
+                  wrapperCol={{ span: 8 }}
+                  label="商品价格"
+                  hasFeedback
+                >
+                  <a-input-number
+                    min={0}
+                    max={500}
+                    step={0.1}
+                    onchange={value => { this.price = value }}
+                    placeholder='¥ 0'
+                    v-decorator={['originalPrice', { rules: [{ required: true, message: '请输入商品价格' }] }]}
+                  />
+                </a-form-item>
+              </a-col>
+
+              {/* 库存 */}
+              <a-col>
+                <a-form-item
+                  labelCol={{ span: 12, offset: 4 }}
+                  wrapperCol={{ span: 8 }}
+                  hasFeedback
+                  label="商品库存"
+                >
+                  <a-input-number
+                    min={0}
+                    formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                    parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                    v-decorator={['count', { rules: [{ required: true, message: '请输入商品库存' }] }]}
+                  />
+                </a-form-item>
+              </a-col>
+
+            </a-row>
 
             {/* 规格 */}
             <a-form-item
@@ -459,57 +473,76 @@ export default {
             {/* 编辑商品才显示的表单项 */}
             {
               cardTitle === 'add' ? '' : (
-                <div>
-                  {/* 商品 id 提交表单时用 */}
-                  <a-form-item
-                    labelCol={labelCol}
-                    wrapperCol={wrapperCol}
-                    label='唯一标识'
-                    hasFeedback
-                  >
-                    <a-input disabled v-decorator={['goodsId', { rules: [{ required: true }] }]} />
-                  </a-form-item>
-                  {/* 折扣 */}
-                  <a-form-item
-                    labelCol={labelCol}
-                    wrapperCol={wrapperCol}
-                    label="商品折扣"
-                    hasFeedback
-                  >
-                    <a-input-number
-                      step={0.1}
-                      max={10}
-                      min={1}
-                      v-decorator={['discount', { initialValue: 10 }]}
-                    />
-                  </a-form-item>
-                  {/* 状态: 0为停售 1为在售 */}
-                  <a-form-item
-                    labelCol={labelCol}
-                    wrapperCol={wrapperCol}
-                    label="商品状态"
-                    hasFeedback
-                  >
-                    <a-select v-decorator={['status', { initialValue: 0 }]}>
-                      <a-select-option value={0}>下架</a-select-option>
-                      <a-select-option value={1}>上架</a-select-option>
-                    </a-select>
-                  </a-form-item>
+                <a-row>
+
                   {/* 商品活动 */}
-                  <a-form-item
-                    labelCol={labelCol}
-                    wrapperCol={wrapperCol}
-                    label="商品活动"
-                    hasFeedback
-                  >
-                    <a-select
-                      v-decorator={['activity']}
-                      mode="tags"
-                      style="width: 100%"
-                      token-separators={[',']}
-                    />
-                  </a-form-item>
-                </div>
+                  <a-col>
+                    <a-row type="flex" align="middle">
+
+                      {/* 折扣 */}
+                      <a-col>
+                        <a-form-item
+                          labelCol={{ span: 12, offset: 3 }}
+                          wrapperCol={{ span: 8 }}
+                          label="商品折扣"
+                          hasFeedback
+                        >
+                          <a-input-number
+                            step={0.1}
+                            max={10}
+                            min={1}
+                            onchange={value => { this.dis = value }}
+                            v-decorator={['discount', { initialValue: 10 }]}
+                          />
+                        </a-form-item>
+                      </a-col>
+
+                      {/* 折扣价 */}
+                      <a-col offset={1}>
+                        <a-form-item
+                          labelCol={{ span: 12, offset: 4 }}
+                          wrapperCol={{ span: 8 }}
+                          label="折扣价"
+                          hasFeedback
+                        >
+                          <a-input-number disabled value={`¥ ${this.discountPrice}`} />
+                        </a-form-item>
+                      </a-col>
+                    </a-row>
+                  </a-col>
+
+                  {/* 状态: 0为停售 1为在售 */}
+                  <a-col>
+                    <a-form-item
+                      labelCol={labelCol}
+                      wrapperCol={wrapperCol}
+                      label="商品状态"
+                      hasFeedback
+                    >
+                      <a-select v-decorator={['status', { initialValue: 0 }]}>
+                        <a-select-option value={0}>下架</a-select-option>
+                        <a-select-option value={1}>上架</a-select-option>
+                      </a-select>
+                    </a-form-item>
+                  </a-col>
+
+                  <a-col>
+                    <a-form-item
+                      labelCol={labelCol}
+                      wrapperCol={wrapperCol}
+                      label="商品活动"
+                      hasFeedback
+                    >
+                      <a-select
+                        v-decorator={['activity']}
+                        mode="tags"
+                        style="width: 100%"
+                        token-separators={[',']}
+                      />
+                    </a-form-item>
+                  </a-col>
+
+                </a-row>
               )
             }
 
@@ -529,16 +562,6 @@ export default {
             </a-form-item>
 
           </a-form>
-        </a-modal>
-
-        {/* 商品详情区 */}
-        <a-modal
-          title="商品详情"
-          style="top: 20px;"
-          width={800}
-          footer={null}
-          v-model={this.showInfoModal}
-        >
         </a-modal>
 
       </a-card>

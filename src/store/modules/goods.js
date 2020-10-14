@@ -38,11 +38,9 @@ export default {
     },
 
     goodsEdit ({ commit }, params) {
-      console.log(params)
       return new Promise((resolve, reject) => {
         http.reqGoodsEdit(params)
           .then(goodsList => {
-            console.log(goodsList)
             if (goodsList && goodsList.length > 0) {
               commit('setGoodsList', goodsList)
               resolve()
