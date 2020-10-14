@@ -1,4 +1,4 @@
-import { Checkbox, Steps, Result, Descriptions, Tooltip, Upload, Popconfirm, Table, Button, Form, Input, Layout, Menu, Tag, message, Icon, Avatar, Dropdown, Modal, Row, Col, Card, Select } from 'ant-design-vue'
+import { Badge, Space, List, InputNumber, Breadcrumb, Checkbox, Steps, Result, Descriptions, Tooltip, Upload, Popconfirm, Table, Button, Form, Input, Layout, Menu, Tag, message, Icon, Avatar, Dropdown, Modal, Row, Col, Card, Select } from 'ant-design-vue'
 
 const component = [
   Tag,
@@ -22,7 +22,12 @@ const component = [
   Descriptions,
   Result,
   Steps,
-  Checkbox
+  Checkbox,
+  Breadcrumb,
+  InputNumber,
+  List,
+  Space,
+  Badge
 ]
 
 export default Vue => {

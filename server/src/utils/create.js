@@ -51,4 +51,24 @@ const createMerchant = (params) => ({
   status: 0 // 审核状态
 })
 
-module.exports = { createUser, createCategory, createMerchant }
+// 创建商品
+const createGoods = (goods) => ({
+  goodsId: v1().replace(/-/g, ''), // 商品id
+  imgUrlBig: mapImg(goods.goodsImg), // 商品大图片
+  imgUrlSmall: mapImg(goods.goodsImgSmall), // 商品小图片
+  goodsName: goods.goodsName, // 商品名称 (必须)
+  originalPrice: goods.originalPice, // 商品原价格 (必须)
+  discount: 10, // 折扣
+  desc: goods.desc || '', // 商品描述
+  specification: goods.specification, // 商品规格 (必须)
+  monthlySales: 0, // 月售量
+  like: 0, // 点赞量
+  activity: [], // 活动标签列表
+  status: 0, // 商品状态, 0: 停售, 1: 在售
+  count: goods.count || 0 // 当前商品库存数量
+})
+
+// 创建店铺
+const createShop = () => { }
+
+module.exports = { createUser, createCategory, createMerchant, createGoods, createShop }

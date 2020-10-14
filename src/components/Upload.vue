@@ -32,11 +32,13 @@ const methods = {
       const len = fileList.length
       fileList[len - 1].url = url
       fileList[len - 1].name = filename
+      this.$emit('done', filename)
     }
     if (file.status === 'removed') {
       http.reqRemoveImg(file.name)
         .then(() => this.$message.success('图片删除成功'))
         .catch(() => this.$message.error('图片删除失败'))
+      this.$emit('remove', file.name)
     }
     this.fileList = fileList
   },

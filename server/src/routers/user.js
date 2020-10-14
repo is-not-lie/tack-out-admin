@@ -14,7 +14,7 @@ let userPhone = '' // 保存发送手机验证码的手机号
 const getIp = (req) => {
   let ip = ''
   const defalutIp = '119.120.228.52'
-  if (process.env.NODE_ENV == 'development') return defalutIp
+  if (process.env.NODE_ENV === 'development') return defalutIp
   try {
     ip = req.headers['x-forwarded-for'] ||
          req.connection.remoteAddress ||

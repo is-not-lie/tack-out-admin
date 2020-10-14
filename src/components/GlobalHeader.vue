@@ -25,10 +25,13 @@ const props = {
   }
 }
 
-const computed = { ...mapGetters(['user']) }
+const computed = {
+  ...mapGetters(['user', 'addRoutes'])
+}
 
 const methods = {
   ...mapActions(['logout']),
+
   menuMap (menu, i) {
     return i === menuTitle.length - 1
       ? (
@@ -48,6 +51,7 @@ const methods = {
         </a-menu-item>
       )
   },
+
   out () {
     this.$confirm({
       title: '您确定要退出登录吗?',
@@ -64,8 +68,11 @@ const methods = {
 
 export default {
   props,
+
   computed,
+
   methods,
+
   render () {
     const { collapsed, user } = this
     return (
@@ -75,6 +82,7 @@ export default {
           type={collapsed ? 'menu-unfold' : 'menu-fold'}
           onClick={() => this.$emit('trigger')}
         />
+
         <a-dropdown class="user">
           <a>
             <a-avatar src={user.avatar} />
@@ -84,6 +92,21 @@ export default {
             { menuTitle.map(this.menuMap) }
           </a-menu>
         </a-dropdown>
+
+        {/*
+        <a-breadcrumb separator=">">
+          <a-breadcrumb-item href="">
+            <a-icon type="home" />
+          </a-breadcrumb-item>
+          <a-breadcrumb-item href="">
+            <a-icon type="user" />
+            <span>Application List</span>
+          </a-breadcrumb-item>
+          <a-breadcrumb-item>
+            Application
+          </a-breadcrumb-item>
+        </a-breadcrumb>
+        */}
       </header >
     )
   }
@@ -92,6 +115,7 @@ export default {
 
 <style lang="scss" scoped>
 header{
+  position: relative;
   height: 64px;
   @extend .flex;
   justify-content: space-between;

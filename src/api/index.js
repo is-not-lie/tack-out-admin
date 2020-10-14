@@ -35,5 +35,13 @@ export const http = {
   // 搜索商家
   reqSearchMerchant: (params) => axios.get('/shop/search', { params }),
   // 根据状态过滤商家列表
-  reqSearchStatus: (params) => axios.get('/shop/search/status', { params: { ...params, pageSize: PAGESIZE } })
+  reqSearchStatus: (params) => axios.get('/shop/search/status', { params: { ...params, pageSize: PAGESIZE } }),
+  // 请求新增商品
+  reqGoodsAdd: (params) => axios.post('/shop/goods/add', params),
+  // 请求商品列表
+  reqGoodsList: (merchantId) => axios.get('/shop/goods/list', { params: { merchantId } }),
+  // 请求修改商品信息
+  reqGoodsEdit: (params) => axios.post('/shop/goods/edit', params),
+  // 请求删除商品
+  reqRemoveGoods: (params) => axios.post('/shop/goods/del', params)
 }

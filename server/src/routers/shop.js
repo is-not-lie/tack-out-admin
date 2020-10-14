@@ -2,6 +2,7 @@ const dayjs = require('dayjs')
 const merchantModel = require('../models/merchant')
 const userModel = require('../models/user')
 const goodsModel = require('../models/goods')
+const commentModel = require('../models/comment')
 const pageFile = require('../utils/pageFile')
 
 // const shopModel = require('../models/shops')
@@ -75,6 +76,7 @@ module.exports = router => {
         user._doc.rank = 1
         await userModel.update(userId, user)
         await goodsModel.initGoodsList(merchantId)
+        await commentModel.initCommentList(merchantId)
       }
       merchant._doc.status = status
       merchant._doc.auditor = auditor
