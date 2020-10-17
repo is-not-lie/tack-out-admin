@@ -44,12 +44,15 @@ export default {
 
   created () {
     const userRouter = this.addRoutes.find(item => item.path === '/')
-    this.menus = userRouter.children.map(item => ({
-      path: item.path,
-      name: item.name,
-      icon: item.meta.icon,
-      title: item.meta.title
-    }))
+    this.menus = userRouter.children.map(item => item.meta.hidden
+      ? { hidden: true, path: '/shops' }
+      : {
+        path: item.path,
+        name: item.name,
+        icon: item.meta.icon,
+        title: item.meta.title
+      }
+    )
   },
 
   render () {

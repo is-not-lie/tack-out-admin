@@ -69,6 +69,29 @@ const createGoods = (goods) => ({
 })
 
 // 创建店铺
-const createShop = () => { }
+const createShop = (params) => ({
+  merchantId: params.merchantId, // 店铺所属商家 id
+  goodsList: params.goodsList, // 店铺经营商品列表
+  shopName: params.shopName, // 店铺名称
+  location: params.location, // 店铺经纬度坐标
+  address: params.address, // 店铺详细地址
+  openingHours: params.openingHours, // 营业时间段
+  serTime: params.serTime, // 配送时间段
+  minFee: params.minFee, // 起送价
+  phone: params.phone, // 店铺联系方式
+  shopCate: params.cateId, // 店铺所属主分类
+  subCate: params.subCateId || '', // 所属子分类
+  createTime: dayjs().format('YYYY-MM-DD HH-mm-ss'), // 创建时间
+  shopId: v1().replace(/-/g, ''), // 店铺 id
+  disPic: params.disPic || 0, // 配送价
+  activity: params.activity || [], // 店铺活动
+  announcement: params.announcement || '', // 店铺公告
+  isBrand: Math.random() * 10 >= 5, // 是否为品牌用户 (随机)
+  isSpe: false, // 是否为美团专送
+  shopStatus: 0, // 店铺状态 0: 休息 1: 营业
+  auditStatus: 0, // 审核状态 0: 待审核 1: 审核通过 2: 审核驳回
+  score: 0, // 店铺评分星级
+  turnover: 0 // 店铺营业额
+})
 
 module.exports = { createUser, createCategory, createMerchant, createGoods, createShop }

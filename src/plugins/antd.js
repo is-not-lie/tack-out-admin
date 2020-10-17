@@ -1,6 +1,7 @@
-import { Badge, Space, List, InputNumber, Breadcrumb, Checkbox, Steps, Result, Descriptions, Tooltip, Upload, Popconfirm, Table, Button, Form, Input, Layout, Menu, Tag, message, Icon, Avatar, Dropdown, Modal, Row, Col, Card, Select } from 'ant-design-vue'
+import { Empty, Divider, Switch, Badge, Space, List, InputNumber, Breadcrumb, Checkbox, Steps, Result, Descriptions, Tooltip, Upload, Popconfirm, Table, Button, Form, Input, Layout, Menu, Tag, message, Icon, Avatar, Dropdown, Modal, Row, Col, Card, Select } from 'ant-design-vue'
 
 const component = [
+  Divider,
   Tag,
   Form,
   Input,
@@ -27,7 +28,9 @@ const component = [
   InputNumber,
   List,
   Space,
-  Badge
+  Badge,
+  Switch,
+  Empty
 ]
 
 export default Vue => {

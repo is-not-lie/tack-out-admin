@@ -49,10 +49,22 @@ const shopRouter = [
     meta: { title: '工作台', icon: 'edit' }
   },
   {
-    path: '/shop',
-    name: 'shop',
-    component: () => import('@/views/shop/shop.vue'),
-    meta: { title: '店铺详情', icon: 'shop' }
+    path: '/shops',
+    name: 'shops',
+    component: () => import('@/views/shop/shops.vue'),
+    meta: { title: '我的店铺', icon: 'shop' }
+  },
+  {
+    path: '/shops/add',
+    name: 'addShop',
+    component: () => import('@/views/shop/add.vue'),
+    meta: { hidden: true }
+  },
+  {
+    path: '/shops/info/:id',
+    name: 'shopInfo',
+    component: () => import('@/views/shop/info.vue'),
+    meta: { hidden: true }
   },
   {
     path: '/goods',

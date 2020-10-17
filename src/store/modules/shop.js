@@ -2,11 +2,15 @@ import { http } from '@/api'
 
 export default {
   state: {
-    merchantList: []
+    merchantList: [],
+    currentMerchant: {},
+    shopList: []
   },
 
   mutations: {
-    setMerchantList (state, merchantList) { state.merchantList = merchantList }
+    setMerchantList (state, merchantList) { state.merchantList = merchantList },
+    setCurrentMerchant (state, currentMerchant) { state.currentMerchant = currentMerchant },
+    setShopList (state, shopList) { state.shopList = shopList || [] }
   },
 
   actions: {
@@ -31,6 +35,20 @@ export default {
               const { total, list } = merchantList
               commit('setMerchantList', list)
               resolve(total)
+            } else reject(new Error())
+          })
+          .catch(reject)
+      })
+    },
+
+    // 获取指定商家
+    getCurrentMerchant ({ commit }, merchantId) {
+      return new Promise((resolve, reject) => {
+        http.reqMerchant(merchantId)
+          .then(merchant => {
+            if (merchant) {
+              commit('setCurrentMerchant', merchant)
+              resolve()
             } else reject(new Error())
           })
           .catch(reject)
@@ -95,6 +113,18 @@ export default {
               commit('setMerchantList', list)
               resolve(total)
             } else reject(new Error())
+          })
+          .catch(reject)
+      })
+    },
+
+    // 获取商家店铺列表
+    getShopList ({ commit }, merchantId) {
+      return new Promise((resolve, reject) => {
+        http.reqShopList(merchantId)
+          .then(shopList => {
+            commit('setShopList', shopList)
+            resolve()
           })
           .catch(reject)
       })

@@ -3,6 +3,7 @@ const merchantModel = require('../models/merchant')
 const userModel = require('../models/user')
 const goodsModel = require('../models/goods')
 const commentModel = require('../models/comment')
+const shopModel = require('../models/shops')
 const pageFile = require('../utils/pageFile')
 
 // const shopModel = require('../models/shops')
@@ -12,23 +13,6 @@ const pageFile = require('../utils/pageFile')
 
 // const shopDefaultImg = `${SERVER.host}:${SERVER.port}/images/default_shop.png`
 // const defaultAnnouncement = '该商家很懒,暂无公告信息...'
-
-// const createShop = (shop) => {
-//   return {
-//     shopName: shop.shopName, // 商家名称 (必须)
-//     shopLocation: shop.shopLocation, // 商家地理坐标 (必须)
-//     shopAddress: shop.shopAddress, // 商家地址 (必须)
-//     openingHours: shop.openingHours, // 商家营业时间 (必须)
-//     serTime: shop.serTime, // 商家配送时间段数组 (必须)
-//     minFee: shop.minFee, // 起送价 (必须)
-//     contact_way: shop.contact_way, // 商家联系方式 (必须, 字符串或多个字符串的数组)
-//     shopCate: shop.shopCate, // 商家所属分类 (必须, 对象或多个对象的数组)
-//     shopImg: shop.shopImg || shopDefaultImg, // 商家图片
-//     disPic: shop.disPic || 0, // 配送价
-//     activity: shop.activity || [], // 商家活动数组
-//     announcement: shop.announcement || defaultAnnouncement // 商家公告
-//   }
-// }
 
 module.exports = router => {
   // 商家注册路由
@@ -61,6 +45,14 @@ module.exports = router => {
       else res.send({ status: 404, msg: '暂无商家信息' })
     }
     catch (msg) { res.send({ status: 0, msg }) }
+  })
+
+  // 查询指定商家
+  router.get('/api/shop/find', async (req, res) => {
+    const { merchantId } = req.query
+    try {
+      res.send({ status: 200, data: await merchantModel.findId(merchantId) })
+    } catch (msg) { res.send({ status: 0, msg }) }
   })
 
   // 更改商家审核状态路由
@@ -130,8 +122,20 @@ module.exports = router => {
     } catch (msg) { res.send({ status: 0, msg }) }
   })
 
+  // 新增店铺路由
+  router.post('/api/shop/add', async (req, res) => {
+    try {
+      const shop = await shopModel.addShop(req.body)
+      res.send({ status: 200, data: shop })
+    } catch (msg) { res.send({ status: 0, msg }) }
+  })
 
-
+  // 商家店铺列表
+  router.get('/api/shop/list', async (req, res) => {
+    const { merchantId } = req.query
+    try { res.send({ status: 200, data: await shopModel.findList(merchantId) }) }
+    catch (msg) { res.send({ status: 0, msg }) }
+  })
 
 
 

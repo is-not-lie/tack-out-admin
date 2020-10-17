@@ -35,7 +35,7 @@ const computed = {
   // 计算折扣价
   discountPrice () {
     const { price, dis } = this
-    return Math.ceil(price * (dis / 10)) * 100 / 100
+    return Math.ceil((price * (dis / 10)) * 100) / 100
   }
 }
 
@@ -101,7 +101,7 @@ const methods = {
     // 注册一下表单项的 id
     this.$refs.upload.setFileList([big, small])
     // 处理表单数据回显
-    this.form.setFieldsValue({ originalPrice, goodsName, discount, count, status, activity, desc, specification })
+    this.form.setFieldsValue({ originalPrice, goodsName, discount, count, status: status === 1, activity, desc, specification })
     this.visible = true
   },
 
@@ -148,6 +148,7 @@ const methods = {
         const goodsImg = filenames[0]
         const goodsImgSmall = filenames[1] || filenames[0]
         const { goodsId } = this.currentGoods
+        values.status = values.status ? 1 : 0
         const params = { goodsId, merchantId, goodsImg, goodsImgSmall, ...values }
         this.handleDispath(params)
       }
@@ -276,93 +277,54 @@ export default {
                 </a-tooltip>
 
               ]}
-              extra={
-                <img
-                  style={{ width: '180px' }}
-                  alt="商品图片"
-                  src={item.imgUrlBig}
-                />
-              }
             >
 
               <a-list-item-meta
                 avatar={
-                  <a-avatar
-                    shape="square"
-                    size="large"
-                    src={item.imgUrlSmall}
+                  <img
+                    style={{ width: '180px' }}
+                    alt="商品图片"
+                    src={item.imgUrlBig}
                   />
                 }
                 title={item.goodsName}
                 description={item.desc}
               />
 
-              <a-row type="flex" gutter={[20, 20]} align="middle">
-                <a-col>
-                  <a-space>
-                    <a-badge status={item.discount === 10 ? 'success' : 'default'} text="商品价格:" />
-                    <a-tag>
-                      ¥ {item.discount === 10 ? item.originalPrice : <del>{item.originalPrice}</del>}
-                    </a-tag>
-                  </a-space>
-                </a-col>
-
-                <a-col>
-                  <a-space>
-                    <a-badge status={item.discount === 10 ? 'default' : 'success'} text="商品折扣:" />
-                    <a-tag>
-                      {item.discount === 10 ? '暂无折扣' : `${item.discount}折`}
-                    </a-tag>
-                  </a-space>
-                </a-col>
-
-                <a-col>
-                  <a-space>
-                    <a-badge status="processing" text="折扣价:" />
-                    <a-tag>
-                      ¥ {item.discount === 10 ? item.originalPrice : Math.ceil((item.originalPrice * (item.discount / 10)) * 100) / 100}
-                    </a-tag>
-                  </a-space>
-                </a-col>
-              </a-row>
-
-              <a-row type="flex" gutter={[20, 20]} align="middle">
-                <a-col>
-                  <a-space>
-                    <a-badge status={item.count > 80 ? 'success' : 'warning'} text='商品库存:' />
-                    <a-tag>{item.count}</a-tag>
-                  </a-space>
-                </a-col>
-
-                <a-col>
-                  <a-space>
-                    <a-badge status={item.status === 0 ? 'default' : 'success'} text='商品状态:' />
-                    <a-tag>
-                      {item.status === 0 ? '停售' : '在售'}
-                    </a-tag>
-                  </a-space>
-                </a-col>
-
-                <a-col>
-                  <a-space>
-                    <a-badge status="processing" text='商品规格:' />
-                    {item.specification.map(spec => <a-tag>{spec}</a-tag>)}
-                  </a-space>
-                </a-col>
-              </a-row>
-
-              <a-row type="flex" gutter={[20, 20]} align="middle">
-                <a-col>
-                  <a-space>
-                    <a-badge status={item.activity.length > 0 ? 'processing' : 'default'} text="商品活动:" />
-                    {
-                      item.activity.length > 0
-                        ? item.activity.map(activity => <a-tag>{activity}</a-tag>)
-                        : <a-tag>该商品暂无活动</a-tag>
-                    }
-                  </a-space>
-                </a-col>
-              </a-row>
+              <a-descriptions bordered column={{ md: 3, sm: 2, xs: 1 }}>
+                <a-descriptions-item label="商品价格">
+                  <a-badge status={item.discount === 10 ? 'success' : 'default'} />
+                  ¥ {item.discount === 10 ? item.originalPrice : <del>{item.originalPrice}</del>}
+                </a-descriptions-item>
+                <a-descriptions-item label="商品折扣">
+                  <a-badge status={item.discount === 10 ? 'default' : 'success'} />
+                  {item.discount === 10 ? '暂无折扣' : `${item.discount}折`}
+                </a-descriptions-item>
+                <a-descriptions-item label="折扣价">
+                  <a-badge status="processing" />
+                  ¥ {item.discount === 10 ? item.originalPrice : Math.ceil((item.originalPrice * (item.discount / 10)) * 100) / 100}
+                </a-descriptions-item>
+                <a-descriptions-item label="商品库存">
+                  <a-badge status={item.count > 80 ? 'success' : 'warning'} />
+                  {item.count}
+                </a-descriptions-item>
+                <a-descriptions-item label="商品状态">
+                  <a-badge status={item.status === 0 ? 'default' : 'success'} />
+                  {item.status === 0 ? '停售' : '在售'}
+                </a-descriptions-item>
+                <a-descriptions-item label="商品规格">
+                  <a-badge status="processing" />
+                  {item.specification.map(spec => <a-tag>{spec}</a-tag>)}
+                </a-descriptions-item>
+                <a-descriptions-item label="商品活动">
+                  <a-badge status={item.activity.length > 0 ? 'processing' : 'default'} />
+                  {
+                    item.activity.length > 0
+                      ? item.activity.map(activity => <a-tag>{activity}</a-tag>)
+                      : <a-tag>该商品暂无活动</a-tag>
+                  }
+                </a-descriptions-item>
+              </a-descriptions>
 
             </a-list-item>
           )}
@@ -505,7 +467,7 @@ export default {
                           label="折扣价"
                           hasFeedback
                         >
-                          <a-input-number disabled value={`¥ ${this.discountPrice}`} />
+                          <a-input-number step={0.1} disabled value={`¥ ${this.discountPrice}`} />
                         </a-form-item>
                       </a-col>
                     </a-row>
@@ -517,12 +479,12 @@ export default {
                       labelCol={labelCol}
                       wrapperCol={wrapperCol}
                       label="商品状态"
-                      hasFeedback
                     >
-                      <a-select v-decorator={['status', { initialValue: 0 }]}>
-                        <a-select-option value={0}>下架</a-select-option>
-                        <a-select-option value={1}>上架</a-select-option>
-                      </a-select>
+                      <a-switch
+                        v-decorator={['status', { valuePropName: 'checked' }]}
+                        unCheckedChildren="上架"
+                        checkedChildren="下架"
+                      />
                     </a-form-item>
                   </a-col>
 

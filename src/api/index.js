@@ -32,6 +32,8 @@ export const http = {
   reqMerchantList: (pageNum) => axios.get('/shop/list', { params: { pageNum, pageSize: PAGESIZE } }),
   // 请求更改商家审核状态
   reqSetAudit: (params) => axios.post('/shop/audit', params),
+  // 请求指定商家
+  reqMerchant: (merchantId) => axios.get('/shop/find', { params: { merchantId } }),
   // 搜索商家
   reqSearchMerchant: (params) => axios.get('/shop/search', { params }),
   // 根据状态过滤商家列表
@@ -43,5 +45,7 @@ export const http = {
   // 请求修改商品信息
   reqGoodsEdit: (params) => axios.post('/shop/goods/edit', params),
   // 请求删除商品
-  reqRemoveGoods: (params) => axios.post('/shop/goods/del', params)
+  reqRemoveGoods: (params) => axios.post('/shop/goods/del', params),
+  // 请求商家店铺列表
+  reqShopList: (merchantId) => axios.get('/shop/list', { params: { merchantId } })
 }
