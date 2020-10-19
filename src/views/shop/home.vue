@@ -1,8 +1,34 @@
 <script>
 import { mapGetters, mapActions } from 'vuex'
+import { Map } from '@/components'
+// import { loadingState } from '@/data/commonState'
+
+// const xData = ['衬衫', '羊毛衫', '雪纺衫', '裤子', '高跟鞋', '袜子']
+
+// const randomDomData = () => {
+//   const data = []
+//   for (let i = 0; i < xData.length; i++) {
+//     data.push(Math.floor(Math.random() * 1000))
+//   }
+//   return data
+// }
+
+// const seriesData = [
+//   {
+//     name: '销量',
+//     data: randomDomData()
+//   },
+//   {
+//     name: '库存',
+//     data: randomDomData()
+//   },
+//   {
+//     name: '评价',
+//     data: randomDomData()
+//   }
+// ]
 
 const state = {
-  menus: []
 }
 
 const computed = {
@@ -56,12 +82,10 @@ export default {
         .then(() => { })
         .catch(() => { })
     }
-    const userRouter = this.addRoutes.find(item => item.path === '/')
-    this.menus = userRouter.children.filter(item => !item.meta.hidden)
   },
 
   render () {
-    const { user, greetText, subText, goodsList, shopList, menus } = this
+    const { user, greetText, subText, goodsList, shopList } = this
     return (
       <a-card>
 
@@ -106,22 +130,13 @@ export default {
         </a-row>
 
         {/* 地图区域 */}
-        <a-row type="flex">
-          <a-col></a-col>
-          <a-col span={6}>
+        <a-row>
+          <a-col>
+            <Map />
+          </a-col>
+          <a-col span={8}>
             <a-row>
               <a-col>
-                <a-card title="便捷导航">
-                  <a-row type="flex" gutter={[10, 10]}>
-                    {
-                      menus.map(menu => (
-                        <a-col>
-                          <router-link to={menu.path}>{menu.meta.title}</router-link>
-                        </a-col>
-                      ))
-                    }
-                  </a-row>
-                </a-card>
               </a-col>
             </a-row>
           </a-col>
